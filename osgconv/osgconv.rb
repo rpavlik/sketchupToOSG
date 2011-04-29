@@ -12,7 +12,7 @@ def exportToOSG(selectionOnly, extension)
 		"Double-sided faces?",
 		"Rotate to Y-UP?",
 		"Scale from inches to meters?"]
-	defaults = ["yes", "yes", "yes", "yes"]
+	defaults = ["yes", "yes", "no", "no"]
 	list = ["yes|no", "yes|no", "yes|no", "yes|no"]
 	if extension == ".ive"
 		prompts << "Compress textures?"
