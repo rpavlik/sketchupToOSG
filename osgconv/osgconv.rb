@@ -96,8 +96,8 @@ end
 
 if( not file_loaded? __FILE__ )
     osg_menu = UI.menu("File").add_submenu("OpenSceneGraph Exporter")
-	osg_menu.add_item("Export scene to OSG...") { exportToOSG(false, ".osg") }
-	osg_menu.add_item("Export scene to IVE...") { exportToOSG(false, ".ive") }
+	osg_menu.add_item("Export entire document to OSG...") { exportToOSG(false, ".osg") }
+	osg_menu.add_item("Export entire document to IVE...") { exportToOSG(false, ".ive") }
 	osg_menu.add_separator
 	osg_menu.add_item("Export selection to OSG...") { exportToOSG(true, ".osg") }
 	osg_menu.add_item("Export selection to IVE...") { exportToOSG(true, ".ive") }
