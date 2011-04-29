@@ -1,9 +1,12 @@
-
+require "osgconv/fileutils.rb"
 
 def exportToOSG(selectionOnly, extension)
-	prompts = ["Export edges?", "Rotate to Y-UP?", "Scale from inches to meters? (NOTE: Doesn't work properly now!)"]
-	defaults = ["yes", "yes", "no"]
-	list = ["yes|no", "yes|no", "yes|no"]
+	prompts = ["Export edges?",
+		"Double-sided faces?",
+		"Rotate to Y-UP?",
+		"Scale from inches to meters?"]
+	defaults = ["yes", "yes", "yes", "yes"]
+	list = ["yes|no", "yes|no", "yes|no", "yes|no"]
 	if extension == ".ive"
 		prompts << "Compress textures?"
 		defaults << "yes"
@@ -15,17 +18,17 @@ def exportToOSG(selectionOnly, extension)
 		return
 	end
 	edges = (input[0] == "yes")
-	doRotate = (input[1] == "yes")
-	doScale = (input[2] == "yes")
+	doublesided = (input[1] == "yes")
+	doRotate = (input[2] == "yes")
+	doScale = (input[3] == "yes")
 	doCompress = false
 	if extension == ".ive"
 		doCompress = (input[2] == "yes")
 	end
 	
 	model = Sketchup.active_model
-	# Or for a COLLADA (.dae) file, using the default options
 	options_hash = {:triangulated_faces   => true,
-					:doublesided_faces    => true,
+					:doublesided_faces    => doublesided,
 					:edges                => edges,
 					:materials_by_layer   => false,
 					:author_attribution   => true,
@@ -38,6 +41,7 @@ def exportToOSG(selectionOnly, extension)
 	if outputFn == nil
 		return
 	end
+	skipDeleteDir = File.directory?(outputFn + "-export")
 	tempFn = outputFn + "-export.dae"
 	Sketchup.status_text = "Exporting to a temporary DAE file..."
 	status = model.export tempFn , options_hash
@@ -45,13 +49,15 @@ def exportToOSG(selectionOnly, extension)
 		UI.messagebox("Could not export to DAE")
 		return
 	end
-	flags = ""
+	flags = " "
+	viewPseudoLoader = ""
 	if doScale
 		scale = "0.02539999969303608" # inches to meters
-		flags = flags + "-s #{scale},#{scale},#{scale} "
+		flags = flags + "-s \"#{scale},#{scale},#{scale}\" -t \"0,0,0\" "
 	end
 	if doRotate
-		flags = flags + "-o 0,0,1-0,1,0 "
+		flags = flags + '-o "0,0,1-0,1,0" '
+		viewPseudoLoader = viewPseudoLoader + ".90,0,0.rot"
 	end
 	if doCompress
 		flags = flags + "--compressed "
@@ -71,8 +77,11 @@ def exportToOSG(selectionOnly, extension)
 	end
 	
 	File.delete(tempFn)
+	if not skipDeleteDir
+		FileUtils.rm_rf outputFn + "-export"
+	end
 	Sketchup.status_text = "Launching viewer of exported model..."
-	Thread.new{ system("\"#{osgviewer}\" \"#{outputFn}\"") }
+	Thread.new{ system("\"#{osgviewer}\" \"#{outputFn}#{viewPseudoLoader}\"") }
 	
 	
 	Sketchup.status_text = "Export of #{outputFn} successful!"
