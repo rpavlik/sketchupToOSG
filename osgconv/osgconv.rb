@@ -1,3 +1,10 @@
+# Copyright Iowa State University 2011
+#
+# Distributed under the Boost Software License, Version 1.0.
+#
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
 require "osgconv/fileutils.rb"
 
 def exportToOSG(selectionOnly, extension)
@@ -5,7 +12,7 @@ def exportToOSG(selectionOnly, extension)
 		"Double-sided faces?",
 		"Rotate to Y-UP?",
 		"Scale from inches to meters?"]
-	defaults = ["yes", "yes", "yes", "yes"]
+	defaults = ["yes", "yes", "no", "no"]
 	list = ["yes|no", "yes|no", "yes|no", "yes|no"]
 	if extension == ".ive"
 		prompts << "Compress textures?"
@@ -89,8 +96,8 @@ end
 
 if( not file_loaded? __FILE__ )
     osg_menu = UI.menu("File").add_submenu("OpenSceneGraph Exporter")
-	osg_menu.add_item("Export scene to OSG...") { exportToOSG(false, ".osg") }
-	osg_menu.add_item("Export scene to IVE...") { exportToOSG(false, ".ive") }
+	osg_menu.add_item("Export entire document to OSG...") { exportToOSG(false, ".osg") }
+	osg_menu.add_item("Export entire document to IVE...") { exportToOSG(false, ".ive") }
 	osg_menu.add_separator
 	osg_menu.add_item("Export selection to OSG...") { exportToOSG(true, ".osg") }
 	osg_menu.add_item("Export selection to IVE...") { exportToOSG(true, ".ive") }
