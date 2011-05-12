@@ -1,5 +1,5 @@
 #define MyAppName "SketchUp to OpenSceneGraph Exporter Plugin"
-#define MyAppVersion "1.3"
+#define MyAppVersion "1.3.1"
 #define MyAppPublisher "Ryan Pavlik"
 #define MyAppPublisherURL "http://academic.cleardefinition.com"
 #define MyAppURL "http://github.com/rpavlik/sketchupToOSG"
