@@ -3,7 +3,7 @@
 #define MyAppPublisher "Ryan Pavlik"
 #define MyAppPublisherURL "http://academic.cleardefinition.com"
 #define MyAppURL "http://github.com/rpavlik/sketchupToOSG"
-#define OSGVersion "2.8.3"
+#define OSGVersion "2.8.5"
 #define OSGSOVersion "65"
 #define OTSOVersion "11"
 
