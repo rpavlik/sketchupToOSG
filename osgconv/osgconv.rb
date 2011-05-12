@@ -8,12 +8,13 @@
 require "osgconv/fileutils.rb"
 
 def exportToOSG(selectionOnly, extension)
-	prompts = ["Export edges?",
+	prompts = ["Open in viewer after export?",
+		"Export edges?",
 		"Double-sided faces?",
 		"Rotate to Y-UP?",
 		"Scale from inches to meters?"]
-	defaults = ["yes", "yes", "no", "no"]
-	list = ["yes|no", "yes|no", "yes|no", "yes|no"]
+	defaults = ["yes", "yes", "yes", "no", "no"]
+	list = ["yes|no", "yes|no", "yes|no", "yes|no", "yes|no"]
 	if extension == ".ive"
 		prompts << "Compress textures?"
 		defaults << "yes"
@@ -24,13 +25,15 @@ def exportToOSG(selectionOnly, extension)
 	if input == nil
 		return
 	end
-	edges = (input[0] == "yes")
-	doublesided = (input[1] == "yes")
-	doRotate = (input[2] == "yes")
-	doScale = (input[3] == "yes")
+
+	view = (input[0] == "yes")
+	edges = (input[1] == "yes")
+	doublesided = (input[2] == "yes")
+	doRotate = (input[3] == "yes")
+	doScale = (input[4] == "yes")
 	doCompress = false
 	if extension == ".ive"
-		doCompress = (input[2] == "yes")
+		doCompress = (input[5] == "yes")
 	end
 	
 	model = Sketchup.active_model
@@ -87,9 +90,10 @@ def exportToOSG(selectionOnly, extension)
 	if not skipDeleteDir
 		FileUtils.rm_rf outputFn + "-export"
 	end
-	Sketchup.status_text = "Launching viewer of exported model..."
-	Thread.new{ system("\"#{osgviewer}\" \"#{outputFn}#{viewPseudoLoader}\"") }
-	
+	if view
+		Sketchup.status_text = "Launching viewer of exported model..."
+		Thread.new{ system("\"#{osgviewer}\" \"#{outputFn}#{viewPseudoLoader}\"") }
+	end
 	
 	Sketchup.status_text = "Export of #{outputFn} successful!"
 end
