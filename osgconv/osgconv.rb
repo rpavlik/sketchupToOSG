@@ -51,6 +51,9 @@ def exportToOSG(selectionOnly, extension)
 	if outputFn == nil
 		return
 	end
+	if File.extname(outputFn) == ""
+		outputFn = outputFn + extension
+	end
 	skipDeleteDir = File.directory?(outputFn + "-export")
 	tempFn = outputFn + "-export.dae"
 	Sketchup.status_text = "Exporting to a temporary DAE file..."
