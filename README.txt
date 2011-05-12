@@ -29,13 +29,17 @@ like your improvements integrated upstream.
 
 Getting Started
 ---------------
-Just unzip this somewhere, and drop the osgconv folder and the
+A simple installer is now available.  If you would prefer to do it the
+hard way:
+
+Unzip this somewhere, and drop the osgconv folder and the
 "openscenegraph_exportviacollada.rb" file into your Google Sketchup
 Plugins folder, something like:
 
 > C:\Program Files (x86)\Google\Google SketchUp 8\Plugins
 
-SketchUp should then have an Export to OpenSceneGraph menu under File
+No matter how you install, the results are the same. SketchUp should
+have an Export to OpenSceneGraph menu under File next time you start it.
 (see the screenshot named `sketchup-to-osg.jpg`)
 
 We have only used this with the free version of Google SketchUp 8 on Windows -
