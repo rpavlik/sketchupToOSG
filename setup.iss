@@ -85,12 +85,12 @@ var
   KeepAsking: Boolean;
 begin
   Result := True;
-  KeepAsking := True;
-  SketchUpPluginsDir := ExpandConstant('{pf32}\Google\Google SketchUp 8\Plugins');
+  SketchUpPluginsDir := ExpandConstant('{pf32}\Google\Google SketchUp 8\Plugins\');
+  KeepAsking := not DirExists(SketchUpPluginsDir) or not FileExists(SketchUpPluginsDir  + '\..\SketchUp.exe')
   while Result and KeepAsking do begin
-    SketchUpPluginsDir := ExpandConstant('{pf32}\Google\Google SketchUp 8\Plugins');
+    SketchUpPluginsDir := ExpandConstant('{pf32}\Google\Google SketchUp 8\Plugins\');
     Result := BrowseForFolder('Could not find the Google SketchUp 8 plugin directory: please select it',
       SketchUpPluginsDir, False);
-      KeepAsking := not DirExists(SketchUpPluginsDir) or not FileExists(SketchUpPluginsDir + '\..\SketchUp.exe') 
+    KeepAsking := not DirExists(SketchUpPluginsDir) or not FileExists(SketchUpPluginsDir + '\..\SketchUp.exe')
   end;
 end;

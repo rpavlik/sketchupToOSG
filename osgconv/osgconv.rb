@@ -51,6 +51,9 @@ def exportToOSG(selectionOnly, extension)
 	if outputFn == nil
 		return
 	end
+	if File.extname(outputFn) == ""
+		outputFn = outputFn + extension
+	end
 	skipDeleteDir = File.directory?(outputFn + "-export")
 	tempFn = outputFn + "-export.dae"
 	Sketchup.status_text = "Exporting to a temporary DAE file..."
@@ -63,6 +66,8 @@ def exportToOSG(selectionOnly, extension)
 	viewPseudoLoader = ""
 	if doScale
 		scale = "0.02539999969303608" # inches to meters
+		# TODO remove the -t argument below: it is a hack to keep the model
+		# closer to where it's expected.
 		flags = flags + "-s \"#{scale},#{scale},#{scale}\" -t \"0,0,0\" "
 	end
 	if doRotate
@@ -73,6 +78,8 @@ def exportToOSG(selectionOnly, extension)
 		flags = flags + "--compressed "
 	end
 	
+
+	# TODO pass flag to osgconv so that transformation happens in the world frame
 	osgconv = Sketchup.find_support_file "osgconv.cmd", "Plugins/osgconv/"
 	osgviewer = Sketchup.find_support_file "osgviewer.cmd", "Plugins/osgconv/"
 	
