@@ -1,4 +1,4 @@
-#define MyAppVersion "1.3.1"
+#define MyAppVersion "1.4"
 #define OSGVersion "2.8.5"
 #define OSGSOVersion "74"
 #define OTSOVersion "11"
@@ -45,9 +45,7 @@ Source: "openscenegraph_exportviacollada.rb"; DestDir: "{app}"; Flags: ignorever
 Source: README.mkd; DestDir: {app}; Flags: ignoreversion; DestName: SketchupToOpenSceneGraph-README.txt; 
 Source: "osgconv\fileutils.rb"; DestDir: "{app}\osgconv"; Flags: ignoreversion
 Source: "osgconv\LICENSE_1_0.txt"; DestDir: "{app}\osgconv"; Flags: ignoreversion
-Source: "osgconv\osgconv.cmd"; DestDir: "{app}\osgconv"; Flags: ignoreversion
 Source: "osgconv\osgconv.rb"; DestDir: "{app}\osgconv"; Flags: ignoreversion
-Source: "osgconv\osgviewer.cmd"; DestDir: "{app}\osgconv"; Flags: ignoreversion
 
 ; OpenSceneGraph
 Source: "osgconv\osg{#OSGSOVersion}-*.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion; 
