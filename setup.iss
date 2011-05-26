@@ -34,6 +34,7 @@ VersionInfoVersion={#MyAppVersion}
 VersionInfoCompany={#MyAppPublisher}
 VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion={#MyAppVersion}
+UninstallFilesDir={app}\osgconv
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
