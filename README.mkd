@@ -40,6 +40,19 @@ have an Export to OpenSceneGraph menu under File next time you start it.
 We have only used this with the free version of Google SketchUp 8 on Windows -
 compatibility with other versions is unknown.
 
+Unattended Installation (for Administrators)
+--------------------------------------------
+The installer has been built with Inno Setup, so the normal command-line
+arguments used by that installer system are available. In particular, if
+you want to run an unattended install that shows the progress dialog
+while it's working, run
+
+    setup-sketchupToOpenSceneGraphPlugin-*VERSION*.exe /SP- /SILENT /SUPPRESSMSGBOXES
+
+For an unattended install that doesn't show any windows at all, run
+
+    setup-sketchupToOpenSceneGraphPlugin-*VERSION*.exe /SP- /VERYSILENT /SUPPRESSMSGBOXES
+
 Manual Installation
 -------------------
 
