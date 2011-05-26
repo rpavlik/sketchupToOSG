@@ -8,7 +8,7 @@
 require "osgconv/fileutils.rb"
 
 # TODO de-duplication
-osg_exportviacollada_extension_url = "https://github.com/rpavlik/sketchupToOSG"
+osg_exportviacollada_extension_url = "https://github.com/rpavlik/sketchupToOSG#readme"
 
 def exportToOSG(selectionOnly, extension)
 	prompts = ["Open in viewer after export?",
@@ -166,7 +166,7 @@ if( not file_loaded? __FILE__ )
 
 	osg_menu.add_separator
 
-	osg_menu.add_item("Visit SketchupToOSG Homepage") { UI.openURL(osg_exportviacollada_extension_url) }
+	osg_menu.add_item("About SketchupToOSG...") { UI.openURL(osg_exportviacollada_extension_url) }
 
     file_loaded __FILE__
 end
