@@ -67,7 +67,7 @@ def exportToOSG(selectionOnly, extension)
 	if doScale
 		if input[4] == "meters"
 			scale = "0.02539999969303608" # inches to meters
-		else if input[4] == "feet"
+		elsif input[4] == "feet"
 			scale = "0.083333" # inches to feet
 		end
 		flags = flags + "-s \"#{scale},#{scale},#{scale}\" "
