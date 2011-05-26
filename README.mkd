@@ -95,9 +95,13 @@ email at <rpavlik@iastate.edu> or <abiryan@ryand.net>.
 Paper materials and copies of publications may be mailed to:
 
 > Ryan Pavlik
+>
 > Virtual Reality Applications Center
+>
 > 1620 Howe Hall
+>
 > Ames, Iowa 50011-2274
+>
 > USA
 
 Of course, this plugin would not be possible without the work of the
