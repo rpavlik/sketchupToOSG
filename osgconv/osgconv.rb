@@ -21,7 +21,7 @@ def exportToOSG(selectionOnly, extension)
 		list << "yes|no"
 	end
 	input = UI.inputbox prompts, defaults, list, "OpenSceneGraph Export Options"
-	
+
 	if input == nil
 		return
 	end
@@ -35,7 +35,7 @@ def exportToOSG(selectionOnly, extension)
 	if extension == ".ive"
 		doCompress = (input[5] == "yes")
 	end
-	
+
 	model = Sketchup.active_model
 	options_hash = {:triangulated_faces   => true,
 					:doublesided_faces    => doublesided,
@@ -46,7 +46,7 @@ def exportToOSG(selectionOnly, extension)
 					:selectionset_only    => selectionOnly,
 					:preserve_instancing  => true }
 	title = model.title
-	
+
 	outputFn = UI.savepanel("Save to #{extension}...", nil, "#{title}#{extension}")
 	if outputFn == nil
 		return
@@ -79,14 +79,12 @@ def exportToOSG(selectionOnly, extension)
 	if doCompress
 		flags = flags + "--compressed "
 	end
-	
 
-	# TODO pass flag to osgconv so that transformation happens in the world frame
 	osgconv = Sketchup.find_support_file "osgconv.cmd", "Plugins/osgconv/"
 	osgviewer = Sketchup.find_support_file "osgviewer.cmd", "Plugins/osgconv/"
-	
+
 	# TODO make sure we find our commands
-	
+
 	Sketchup.status_text = "Converting .dae temp file to OpenSceneGraph format..."
 	cmdline = "\"#{osgconv}\" \"#{tempFn}\" \"#{outputFn}\" " + flags
 	status = system(cmdline)
@@ -94,7 +92,7 @@ def exportToOSG(selectionOnly, extension)
 		UI.messagebox("Failed when converting #{tempFn} to #{outputFn}! Temporary file not deleted, for your inspection.")
 		return
 	end
-	
+
 	File.delete(tempFn)
 	if not skipDeleteDir
 		FileUtils.rm_rf outputFn + "-export"
@@ -103,7 +101,7 @@ def exportToOSG(selectionOnly, extension)
 		Sketchup.status_text = "Launching viewer of exported model..."
 		Thread.new{ system("\"#{osgviewer}\" \"#{outputFn}#{viewPseudoLoader}\"") }
 	end
-	
+
 	Sketchup.status_text = "Export of #{outputFn} successful!"
 end
 
