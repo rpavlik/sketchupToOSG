@@ -4,7 +4,7 @@
 #define MyAppPublisherURL "http://academic.cleardefinition.com"
 #define MyAppURL "http://github.com/rpavlik/sketchupToOSG"
 #define OSGVersion "2.8.5"
-#define OSGSOVersion "65"
+#define OSGSOVersion "74"
 #define OTSOVersion "11"
 
 [Setup]
@@ -40,7 +40,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Files]
 ; Files created for this project
 Source: "openscenegraph_exportviacollada.rb"; DestDir: "{app}"; Flags: ignoreversion
-Source: README.txt; DestDir: {app}; Flags: ignoreversion isreadme; DestName: SketchupToOpenSceneGraph-README.txt; 
+Source: README.txt; DestDir: {app}; Flags: ignoreversion; DestName: SketchupToOpenSceneGraph-README.txt; 
 Source: "osgconv\fileutils.rb"; DestDir: "{app}\osgconv"; Flags: ignoreversion
 Source: "osgconv\LICENSE_1_0.txt"; DestDir: "{app}\osgconv"; Flags: ignoreversion
 Source: "osgconv\osgconv.cmd"; DestDir: "{app}\osgconv"; Flags: ignoreversion
