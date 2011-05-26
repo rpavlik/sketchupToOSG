@@ -1,12 +1,17 @@
 SketchUp to OSG Plugin
 ======================
 
-<https://github.com/rpavlik/sketchupToOSG>
+* Homepage: <https://github.com/rpavlik/sketchupToOSG>
+* Downloads: <https://github.com/rpavlik/sketchupToOSG/downloads>
+* Release Changelog: <https://github.com/rpavlik/sketchupToOSG/blob/master/CHANGELOG.mkd>
+* Documentation: <https://github.com/rpavlik/sketchupToOSG#readme>
 
-Original Author: Ryan Pavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
-<http://academic.cleardefinition.com>
+Original Author:
 
-Iowa State University HCI Graduate Program/VRAC
+> Ryan Pavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
+> <http://academic.cleardefinition.com>
+>
+> Iowa State University HCI Graduate Program/VRAC
 
 Introduction
 ------------
