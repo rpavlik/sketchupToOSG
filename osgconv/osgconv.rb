@@ -113,7 +113,6 @@ def exportToOSG(selectionOnly, extension)
 	ENV['OSG_LIBRARY_PATH'] = File.dirname(osgviewerbin)
 
 	# Change to output directory
-	UI.messagebox "chdir"
 	outdir = File.dirname(outputFn)
 	Dir.chdir outdir do
 		# Run the converter
@@ -125,8 +124,8 @@ def exportToOSG(selectionOnly, extension)
 			return
 		end
 	end
+
 	# Delete temporary file(s)
-	UI.messagebox "delete"
 	File.delete(tempFn)
 	if not skipDeleteDir
 		FileUtils.rm_rf outputFn + "-export"
@@ -135,12 +134,11 @@ def exportToOSG(selectionOnly, extension)
 	# View file if requested
 	extraMessage = ""
 	if view
-		UI.messagebox "view"
 		Sketchup.status_text = "Launching viewer of exported model..."
 		Thread.new{ system(osgviewerbin, "--window", "50", "50", "640", "480", outputFn + viewPseudoLoader) }
 		extraMessage = "Viewer launched - press Esc to close it."
 	end
-	UI.messagebox "done"
+
 	Sketchup.status_text = "Export of #{outputFn} successful!  #{extraMessage}"
 end
 
@@ -151,10 +149,6 @@ def osg_exportviacollada_extension_selectionValidation()
 		return MF_ENABLED
 	end
 end
-def osg_exportviacollada_extension_loadHomepage()
-	UI.openURL(osg_exportviacollada_extension_url)
-end
-
 if( not file_loaded? __FILE__ )
     osg_menu = UI.menu("File").add_submenu("Export to OpenSceneGraph")
 
