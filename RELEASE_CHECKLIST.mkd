@@ -1,0 +1,18 @@
+SketchUp to OSG Plugin Release Checklist
+========================================
+
+These are the items that need to be updated for each release:
+
+* Update `CHANGELOG.mkd` and add tag date.
+
+* Update `setup.iss` with new version.
+
+* Update `openscenegraph_exportviacollada.rb` with new version.
+
+* Tag master branch `X.X`
+
+* Merge `master` into `windows-bin` branch, and tag `windows-X.X`
+
+* Push branches and tags to GitHub.
+
+* Build installer and upload to GitHub.
