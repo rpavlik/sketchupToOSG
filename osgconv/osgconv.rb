@@ -105,12 +105,28 @@ def exportToOSG(selectionOnly, extension)
 	Sketchup.status_text = "Export of #{outputFn} successful!"
 end
 
+def selectionValidation()
+	if Sketchup.active_model.selection.empty?
+		return MF_GRAYED
+	else
+		return MF_ENABLED
+	end
+end
+
 if( not file_loaded? __FILE__ )
-    osg_menu = UI.menu("File").add_submenu("OpenSceneGraph Exporter")
+    osg_menu = UI.menu("File").add_submenu("Export to OpenSceneGraph")
+
 	osg_menu.add_item("Export entire document to OSG...") { exportToOSG(false, ".osg") }
+
 	osg_menu.add_item("Export entire document to IVE...") { exportToOSG(false, ".ive") }
+
 	osg_menu.add_separator
-	osg_menu.add_item("Export selection to OSG...") { exportToOSG(true, ".osg") }
-	osg_menu.add_item("Export selection to IVE...") { exportToOSG(true, ".ive") }
+
+	selItem = osg_menu.add_item("Export selection to OSG...") { exportToOSG(true, ".osg") }
+	osg_menu.set_validation_proc(selItem) {selectionValidation()}
+
+	selItem = osg_menu.add_item("Export selection to IVE...") { exportToOSG(true, ".ive") }
+	osg_menu.set_validation_proc(selItem) {selectionValidation()}
+
     file_loaded __FILE__
 end
