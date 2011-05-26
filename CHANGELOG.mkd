@@ -21,7 +21,7 @@ Not yet tagged, but will include these changes:
 * Menu items renamed, selection items will disable themselves when there
 	is no current selection.
 
-* "About" menu item added to visit homepage.
+* Menu item added to visit homepage.
 
 * Call the helper apps directly, rather than through a batch file.
 

@@ -11,6 +11,7 @@ require "osgconv/fileutils.rb"
 osg_exportviacollada_extension_url = "https://github.com/rpavlik/sketchupToOSG#readme"
 
 def exportToOSG(selectionOnly, extension)
+	# Present an options dialog
 	prompts = ["Open in viewer after export?",
 		"Export edges?",
 		"Double-sided faces?",
@@ -26,9 +27,11 @@ def exportToOSG(selectionOnly, extension)
 	input = UI.inputbox prompts, defaults, list, "OpenSceneGraph Export Options"
 
 	if input == nil
+		# If they cancelled the options dialog, don't export
 		return
 	end
 
+	# Interpret results of options dialog
 	view = (input[0] == "yes")
 	edges = (input[1] == "yes")
 	doublesided = (input[2] == "yes")
@@ -39,17 +42,11 @@ def exportToOSG(selectionOnly, extension)
 		doCompress = (input[5] == "yes")
 	end
 
+	# Get model information
 	model = Sketchup.active_model
-	options_hash = {:triangulated_faces   => true,
-					:doublesided_faces    => doublesided,
-					:edges                => edges,
-					:materials_by_layer   => false,
-					:author_attribution   => true,
-					:texture_maps         => true,
-					:selectionset_only    => selectionOnly,
-					:preserve_instancing  => true }
 	title = model.title
 
+	# Present "Save as" dialog
 	outputFn = UI.savepanel("Save to #{extension}...", nil, "#{title}#{extension}")
 	if outputFn == nil
 		# Don't export if they hit cancel
@@ -64,9 +61,17 @@ def exportToOSG(selectionOnly, extension)
 	skipDeleteDir = File.directory?(outputFn + "-export")
 
 	# Export to DAE
-	tempFn = outputFn + "-export.dae"
 	Sketchup.status_text = "Exporting to a temporary DAE file..."
-	status = model.export tempFn , options_hash
+	tempFn = outputFn + "-export.dae"
+	options_hash = {:triangulated_faces   => true,
+					:doublesided_faces    => doublesided,
+					:edges                => edges,
+					:materials_by_layer   => false,
+					:author_attribution   => true,
+					:texture_maps         => true,
+					:selectionset_only    => selectionOnly,
+					:preserve_instancing  => true }
+	status = model.export tempFn, options_hash
 	if (not status)
 		UI.messagebox("Could not export to DAE")
 		return
@@ -107,8 +112,6 @@ def exportToOSG(selectionOnly, extension)
 		return
 	end
 
-	Sketchup.status_text = "Converting .dae temp file to OpenSceneGraph format..."
-
 	# Tell OSG where it can find its plugins
 	ENV['OSG_LIBRARY_PATH'] = File.dirname(osgviewerbin)
 
@@ -116,7 +119,7 @@ def exportToOSG(selectionOnly, extension)
 	outdir = File.dirname(outputFn)
 	Dir.chdir outdir do
 		# Run the converter
-		UI.messagebox "run converter"
+		Sketchup.status_text = "Converting .dae temp file to OpenSceneGraph format..."
 		status = Kernel.system(osgconvbin, *convertArgs)
 
 		if not status
@@ -149,6 +152,7 @@ def osg_exportviacollada_extension_selectionValidation()
 		return MF_ENABLED
 	end
 end
+
 if( not file_loaded? __FILE__ )
     osg_menu = UI.menu("File").add_submenu("Export to OpenSceneGraph")
 
@@ -166,7 +170,7 @@ if( not file_loaded? __FILE__ )
 
 	osg_menu.add_separator
 
-	osg_menu.add_item("About SketchupToOSG...") { UI.openURL(osg_exportviacollada_extension_url) }
+	osg_menu.add_item("Visit SketchupToOSG homepage") { UI.openURL(osg_exportviacollada_extension_url) }
 
     file_loaded __FILE__
 end
