@@ -49,12 +49,18 @@ def exportToOSG(selectionOnly, extension)
 
 	outputFn = UI.savepanel("Save to #{extension}...", nil, "#{title}#{extension}")
 	if outputFn == nil
+		# Don't export if they hit cancel
 		return
 	end
 	if File.extname(outputFn) == ""
+		# If specified filename had no extension, add the default.
 		outputFn = outputFn + extension
 	end
+
+	# Flag: don't delete the export texture dir if it already exists before export
 	skipDeleteDir = File.directory?(outputFn + "-export")
+
+	# Export to DAE
 	tempFn = outputFn + "-export.dae"
 	Sketchup.status_text = "Exporting to a temporary DAE file..."
 	status = model.export tempFn , options_hash
@@ -93,10 +99,12 @@ def exportToOSG(selectionOnly, extension)
 		return
 	end
 
+	# Delete temporary file(s)
 	File.delete(tempFn)
 	if not skipDeleteDir
 		FileUtils.rm_rf outputFn + "-export"
 	end
+	# View file if requested
 	if view
 		Sketchup.status_text = "Launching viewer of exported model..."
 		Thread.new{ system("\"#{osgviewer}\" \"#{outputFn}#{viewPseudoLoader}\"") }
