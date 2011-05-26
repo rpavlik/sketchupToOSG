@@ -1,11 +1,12 @@
-#define MyAppName "SketchUp to OpenSceneGraph Exporter Plugin"
-#define MyAppVersion "1.3.1"
-#define MyAppPublisher "Ryan Pavlik"
-#define MyAppPublisherURL "http://academic.cleardefinition.com"
-#define MyAppURL "http://github.com/rpavlik/sketchupToOSG"
+#define MyAppVersion "1.4"
 #define OSGVersion "2.8.5"
 #define OSGSOVersion "74"
 #define OTSOVersion "11"
+
+#define MyAppName "SketchUp to OpenSceneGraph Exporter Plugin"
+#define MyAppPublisher "Ryan Pavlik"
+#define MyAppPublisherURL "http://academic.cleardefinition.com"
+#define MyAppURL "http://github.com/rpavlik/sketchupToOSG"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -33,6 +34,7 @@ VersionInfoVersion={#MyAppVersion}
 VersionInfoCompany={#MyAppPublisher}
 VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion={#MyAppVersion}
+UninstallFilesDir={app}\osgconv
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -40,12 +42,10 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Files]
 ; Files created for this project
 Source: "openscenegraph_exportviacollada.rb"; DestDir: "{app}"; Flags: ignoreversion
-Source: README.txt; DestDir: {app}; Flags: ignoreversion; DestName: SketchupToOpenSceneGraph-README.txt; 
+Source: README.mkd; DestDir: {app}; Flags: ignoreversion; DestName: SketchupToOpenSceneGraph-README.txt; 
 Source: "osgconv\fileutils.rb"; DestDir: "{app}\osgconv"; Flags: ignoreversion
 Source: "osgconv\LICENSE_1_0.txt"; DestDir: "{app}\osgconv"; Flags: ignoreversion
-Source: "osgconv\osgconv.cmd"; DestDir: "{app}\osgconv"; Flags: ignoreversion
 Source: "osgconv\osgconv.rb"; DestDir: "{app}\osgconv"; Flags: ignoreversion
-Source: "osgconv\osgviewer.cmd"; DestDir: "{app}\osgconv"; Flags: ignoreversion
 
 ; OpenSceneGraph
 Source: "osgconv\osg{#OSGSOVersion}-*.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion; 

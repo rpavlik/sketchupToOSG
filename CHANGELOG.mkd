@@ -1,0 +1,65 @@
+SketchUp to OSG Plugin CHANGELOG
+================================
+
+As always, for the full history, look at the Git commit log. This is an 
+abbreviated history for "normal" users. 
+
+Version 1.4
+-----------
+Tagged 26 May 2011.
+
+* Newer pre-release of OSG 2.8.5. 
+
+* Scaling and rotation now take place in the world frame, preserving the 
+	origin seen in SketchUp. 
+
+* Patched osgconv to transform in world frame included. 
+
+* Scaling option clarified, and choice of inches, feet, and meters now 
+	offered.
+
+* Menu items renamed, selection items will disable themselves when there
+	is no current selection.
+
+* Menu item added to visit homepage.
+
+* Call the helper apps directly, rather than through a batch file.
+
+* Ensure we can actually find the helper apps before calling them.
+
+* Comment the code better.
+
+Version 1.3.1
+-------------
+Tagged 12 May 2011.
+
+* Added Inno Setup installer.
+
+* Plugin will automatically add file extension if no extension found.
+
+* Update to pre-release of OSG 2.8.5 (including Windows binaries) to use 
+	upstreamed versions of patches developed for earlier plugin versions.
+
+Version 1.3
+-----------
+Tagged 29 April 2011.
+
+* Rename "export scene" to "export entire document"
+
+* Improve README
+
+* Disable rotate and scale by default due to issues.
+
+Version 1.2
+-----------
+* Improved conversion and viewing scripts.
+
+* Updated osgconv and osgdb_osg Windows binaries for improved texture export.
+
+* Unnecessary Windows osgwrapper binaries removed.
+
+Version 1.1
+-----------
+* Initial released version.
+
+* Windows binaries: OSG 2.8.3 with some modifications
