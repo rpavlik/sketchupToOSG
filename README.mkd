@@ -16,10 +16,10 @@ Original Author:
 Introduction
 ------------
 Google SketchUp is a pretty slick application, and OpenSceneGraph (OSG) is a
-great 3D rendering system. SketchUp can export its models to COLLADA (.dae),
+great 3D rendering system. SketchUp can export its models to COLLADA (`.dae`),
 and OpenSceneGraph conveniently has a plugin to load COLLADA models, though
 it (and/or its dependencies) can be tough to build. You could create native
-.osg/.ive models by exporting to COLLADA, then using `osgconv` to convert
+`.osg`/`.ive` models by exporting to COLLADA, then using `osgconv` to convert
 them. Since SketchUp has support for plugins written in Ruby, why not combine
 the steps and make a plugin that bundles a COLLADA-capable OSG build and
 can set up the COLLADA export and conversion processes for the best results?
@@ -50,18 +50,19 @@ Unattended Installation (for Administrators)
 The installer has been built with Inno Setup, so the normal command-line
 arguments used by that installer system are available. In particular, if
 you want to run an unattended install that shows the progress dialog
-while it's working, run
+while it's working, run a command like:
 
-    setup-sketchupToOpenSceneGraphPlugin-*VERSION*.exe /SP- /SILENT /SUPPRESSMSGBOXES
+    setup-sketchupToOpenSceneGraphPlugin-VERSIONGOESHERE.exe /SP- /SILENT /SUPPRESSMSGBOXES
 
 For an unattended install that doesn't show any windows at all, run
+something like:
 
-    setup-sketchupToOpenSceneGraphPlugin-*VERSION*.exe /SP- /VERYSILENT /SUPPRESSMSGBOXES
+    setup-sketchupToOpenSceneGraphPlugin-VERSIONGOESHERE.exe /SP- /VERYSILENT /SUPPRESSMSGBOXES
 
 Manual Installation
 -------------------
-Unzip this somewhere, and drop the osgconv folder and the
-"openscenegraph_exportviacollada.rb" file into your Google Sketchup
+Unzip this somewhere, and drop the `osgconv` folder and the
+`openscenegraph_exportviacollada.rb` file into your Google Sketchup
 Plugins folder, something like:
 
 > C:\Program Files (x86)\Google\Google SketchUp 8\Plugins
@@ -80,7 +81,7 @@ the following license:
 > (See accompanying file `osgconv/LICENSE_1_0.txt` or copy at
 > <http://www.boost.org/LICENSE_1_0.txt>)
 
-A local copy of fileutils.rb from the upstream Ruby project is bundled.
+A local copy of `fileutils.rb` from the upstream Ruby project is bundled.
 
 An actual in-use instance of this plugin makes use of the OpenSceneGraph
 package and its dependencies, including but not limited to COLLADA-DOM,
