@@ -66,9 +66,7 @@ def exportToOSG(selectionOnly, extension)
 	viewPseudoLoader = ""
 	if doScale
 		scale = "0.02539999969303608" # inches to meters
-		# TODO remove the -t argument below: it is a hack to keep the model
-		# closer to where it's expected.
-		flags = flags + "-s \"#{scale},#{scale},#{scale}\" -t \"0,0,0\" "
+		flags = flags + "-s \"#{scale},#{scale},#{scale}\" "
 	end
 	if doRotate
 		flags = flags + '-o "0,0,1-0,1,0" '
