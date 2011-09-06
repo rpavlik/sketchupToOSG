@@ -4,6 +4,14 @@ SketchUp to OSG Plugin CHANGELOG
 As always, for the full history, look at the Git commit log. This is an 
 abbreviated history for "normal" users. 
 
+Version 1.5
+-----------
+Tagged 6 September 2011.
+
+* Added option for "alternate" transparency mode that sets "GoogleMode"
+	when importing `.dae` files into OSG. Thanks to sfuhrman on GitHub
+	for the tip.
+
 Version 1.4
 -----------
 Tagged 26 May 2011.
