@@ -16,9 +16,10 @@ def exportToOSG(selectionOnly, extension)
 		"Export edges?",
 		"Double-sided faces?",
 		"Rotate to Y-UP?",
-		"Scale units to:"]
-	defaults = ["yes", "yes", "yes", "yes", "meters"]
-	list = ["yes|no", "yes|no", "yes|no", "yes|no", "inches (no scaling)|feet|meters"]
+		"Scale units to:",
+		"Transparency mode:"]
+	defaults = ["yes", "yes", "yes", "yes", "meters", "default"]
+	list = ["yes|no", "yes|no", "yes|no", "yes|no", "inches (no scaling)|feet|meters", "default|alternate"]
 	if extension == ".ive"
 		prompts << "Compress textures?"
 		defaults << "yes"
@@ -37,9 +38,10 @@ def exportToOSG(selectionOnly, extension)
 	doublesided = (input[2] == "yes")
 	doRotate = (input[3] == "yes")
 	doScale = (input[4] != "inches (no scaling)")
+	doGoogleMode = (input[5] != "default")
 	doCompress = false
 	if extension == ".ive"
-		doCompress = (input[5] == "yes")
+		doCompress = (input[6] == "yes")
 	end
 
 	# Get model information
@@ -83,7 +85,10 @@ def exportToOSG(selectionOnly, extension)
 		"--use-world-frame",
 		"-O", "OutputRelativeTextures"]
 	viewPseudoLoader = ""
-
+	if doGoogleMode
+		converetArgs << "-O"
+		convertArgs << "GoogleMode"
+	end
 	if doScale
 		if input[4] == "meters"
 			scale = "0.02539999969303608" # inches to meters
