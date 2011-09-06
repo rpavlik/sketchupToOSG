@@ -1,24 +1,29 @@
 SketchUp to OSG Plugin
 ======================
 
-<https://github.com/rpavlik/sketchupToOSG>
+* Homepage: <https://github.com/rpavlik/sketchupToOSG>
+* Downloads: <https://github.com/rpavlik/sketchupToOSG/downloads>
+* Release Changelog: <https://github.com/rpavlik/sketchupToOSG/blob/master/CHANGELOG.mkd>
+* Documentation: <https://github.com/rpavlik/sketchupToOSG#readme>
 
-Original Author: Ryan Pavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
-<http://academic.cleardefinition.com>
+Original Author:
 
-Iowa State University HCI Graduate Program/VRAC
+> Ryan Pavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
+> <http://academic.cleardefinition.com>
+>
+> Iowa State University HCI Graduate Program/VRAC
 
 Introduction
 ------------
-
-Google SketchUp is a pretty slick application, and OpenSceneGraph (OSG) is a
-great 3D rendering system. SketchUp can export its models to COLLADA (.dae),
-and OpenSceneGraph conveniently has a plugin to load COLLADA models, though
-it (and/or its dependencies) can be tough to build. You could create native
-.osg/.ive models by exporting to COLLADA, then using `osgconv` to convert
-them. Since SketchUp has support for plugins written in Ruby, why not combine
-the steps and make a plugin that bundles a COLLADA-capable OSG build and
-can set up the COLLADA export and conversion processes for the best results?
+[Google SketchUp][1] is a pretty slick application, and [OpenSceneGraph
+(OSG)][2] is a great 3D rendering system. SketchUp can export its models
+to [COLLADA (`.dae`)][3], and OpenSceneGraph conveniently has a plugin
+to load COLLADA models, though it (and/or its dependencies) can be tough
+to build. You could create native `.osg`/`.ive` models by exporting to
+COLLADA, then using `osgconv` to convert them. Since SketchUp has
+support for plugins written in Ruby, why not combine the steps and make
+a plugin that bundles a COLLADA-capable OSG build and can set up the
+COLLADA export and conversion processes for the best results?
 
 Well, that's what this is - a plugin for combining those steps. It's been
 useful to us - hopefully it's useful to you as well!
@@ -29,8 +34,9 @@ like your improvements integrated upstream.
 
 Getting Started
 ---------------
-A simple installer is now available - just click Download on the GitHub
-page to access it. If you would prefer to do it the hard way, see below.
+A simple installer is now available - just [download it from
+GitHub](https://github.com/rpavlik/sketchupToOSG/downloads). If you
+would prefer to do it the hard way, see "Manual Installation," below.
 
 No matter how you install, the results are the same. SketchUp should
 have an Export to OpenSceneGraph menu under File next time you start it.
@@ -40,18 +46,30 @@ have an Export to OpenSceneGraph menu under File next time you start it.
 We have only used this with the free version of Google SketchUp 8 on Windows -
 compatibility with other versions is unknown.
 
+Unattended Installation (for Administrators)
+--------------------------------------------
+The installer has been built with Inno Setup, so the normal command-line
+arguments used by that installer system are available. In particular, if
+you want to run an unattended install that shows the progress dialog
+while it's working, run a command like:
+
+    setup-sketchupToOpenSceneGraphPlugin-VERSIONGOESHERE.exe /SP- /SILENT /SUPPRESSMSGBOXES
+
+For an unattended install that doesn't show any windows at all, run
+something like:
+
+    setup-sketchupToOpenSceneGraphPlugin-VERSIONGOESHERE.exe /SP- /VERYSILENT /SUPPRESSMSGBOXES
+
 Manual Installation
 -------------------
-
-Unzip this somewhere, and drop the osgconv folder and the
-"openscenegraph_exportviacollada.rb" file into your Google Sketchup
+Unzip this somewhere, and drop the `osgconv` folder and the
+`openscenegraph_exportviacollada.rb` file into your Google SketchUp
 Plugins folder, something like:
 
 > C:\Program Files (x86)\Google\Google SketchUp 8\Plugins
 
 Licenses
 --------
-
 This plugin is free and open-source software.
 
 The Ruby scripts serving as the SketchUp plugin may be distributed under
@@ -64,15 +82,14 @@ the following license:
 > (See accompanying file `osgconv/LICENSE_1_0.txt` or copy at
 > <http://www.boost.org/LICENSE_1_0.txt>)
 
-A local copy of fileutils.rb from the upstream Ruby project is bundled.
+A local copy of `fileutils.rb` from the upstream Ruby project is bundled.
 
 An actual in-use instance of this plugin makes use of the OpenSceneGraph
-package and its dependencies, including but not limited to COLLADA-DOM,
+package and its dependencies, including but not limited to [COLLADA-DOM][4],
 which have their own licenses.
 
 Acknowledgement
 ---------------
-
 If you find this useful, we would appreciate hearing from you. If you
 use this for academic work, we would also appreciate a copy of the
 publication and a citation: this helps make a case for our work. You may
@@ -82,11 +99,20 @@ email at <rpavlik@iastate.edu> or <abiryan@ryand.net>.
 Paper materials and copies of publications may be mailed to:
 
 > Ryan Pavlik
+>
 > Virtual Reality Applications Center
+>
 > 1620 Howe Hall
+>
 > Ames, Iowa 50011-2274
+>
 > USA
 
 Of course, this plugin would not be possible without the work of the
-OpenSceneGraph and COLLADA-DOM teams. Thanks to them and the others in
-the open-source ecosystem supporting them.
+[OpenSceneGraph][2] and [COLLADA-DOM][4] teams. Thanks to them and the
+others in the open-source ecosystem supporting them.
+
+[1]: http://sketchup.google.com/ "Google SketchUp"
+[2]: http://www.openscenegraph.org/ "OpenSceneGraph"
+[3]: https://collada.org/ "COLLADA"
+[4]: http://www.collada.org/mediawiki/index.php/Portal:COLLADA_DOM "COLLADA-DOM"
