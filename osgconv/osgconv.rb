@@ -86,7 +86,7 @@ def exportToOSG(selectionOnly, extension)
 		"-O", "OutputRelativeTextures"]
 	viewPseudoLoader = ""
 	if doGoogleMode
-		converetArgs << "-O"
+		convertArgs << "-O"
 		convertArgs << "GoogleMode"
 	end
 	if doScale
