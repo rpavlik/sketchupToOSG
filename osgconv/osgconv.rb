@@ -110,8 +110,9 @@ def exportToOSG(selectionOnly, extension)
 	end
 
 	# Find helper applications
-	osgconvbin = Sketchup.find_support_file "osgconv.exe", "Plugins/osgconv/"
-	osgviewerbin = Sketchup.find_support_file "osgviewer.exe", "Plugins/osgconv/"
+	binext = (RUBY_PLATFORM=~/mswin/)? ".exe" : ""
+	osgconvbin = Sketchup.find_support_file "osgconv"+binext, "Plugins/osgconv/"
+	osgviewerbin = Sketchup.find_support_file "osgviewer"+binext, "Plugins/osgconv/"
 	if osgconvbin == nil or osgviewerbin == nil
 		UI.messagebox("Failed to find conversion/viewing tools!\nosgconv: #{osgconvbin}\nosgviewer: #{osgviewerbin}")
 		return
