@@ -119,7 +119,11 @@ def exportToOSG(selectionOnly, extension)
 	end
 
 	# Tell OSG where it can find its plugins
-	ENV['OSG_LIBRARY_PATH'] = File.dirname(osgviewerbin)
+	if RUBY_PLATFORM=~/darwin/
+		ENV['OSG_LIBRARY_PATH'] = File.dirname(osgviewerbin)+'/vendor/lib/osgPlugins-3.0.1'
+	else
+		ENV['OSG_LIBRARY_PATH'] = File.dirname(osgviewerbin)
+	end
 
 	# Change to output directory
 	outdir = File.dirname(outputFn)
