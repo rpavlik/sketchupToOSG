@@ -16,7 +16,7 @@ def exportToOSG(selectionOnly, extension)
 		"Export edges?",
 		"Double-sided faces?",
 		"Rotate to Y-UP?",
-		"Scale units to:"]
+		"Convert to output units:"]
 	defaults = ["yes", "yes", "yes", "yes", "meters"]
 	list = ["yes|no", "yes|no", "yes|no", "yes|no", "inches (no scaling)|feet|meters"]
 	if extension == ".ive"
