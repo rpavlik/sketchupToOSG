@@ -4,8 +4,21 @@ SketchUp to OSG Plugin CHANGELOG
 As always, for the full history, look at the Git commit log. This is an 
 abbreviated history for "normal" users. 
 
-Version 1.5.1
+Version 1.6
 -----------
+Tagged 18 September 2013.
+
+* Update to generate installers for SketchUp 2013 as well as 8.
+
+* Follow [thomthom's suggestions](http://www.thomthom.net/thoughts/2013/02/sketchup-plugin-checklist/)
+    regarding code isolation and locating files.
+
+* Remove alternate transparency mode: tested, not needed.
+
+* Clarify wording in UI regarding units.
+
+Version 1.5.1
+-------------
 Tagged 16 September 2011.
 
 * Brown-paper bag release: typo meant that "GoogleMode" (alternative
