@@ -157,13 +157,7 @@ module RP_SketchUpToOSG
 		    return
 	    end
 
-        if ( Object::RUBY_PLATFORM =~ /darwin/i )
-            menu_index = 19
-        else
-            menu_index = 17
-        end
-
-        osg_menu = UI.menu("File").add_submenu("Export to OpenSceneGraph", menu_index)
+        osg_menu = UI.menu("File").add_submenu("Export to OpenSceneGraph")
 
 	    osg_menu.add_item("Export entire document to OSG...") { self.exportToOSG(false, ".osg") }
 
