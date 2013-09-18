@@ -73,6 +73,14 @@ or
 
 > C:\Program Files (x86)\SketchUp\SketchUp 2013\Plugins
 
+Generating Installers
+---------------------
+There's a `setup_X.iss` file for each version of SketchUp that defines a
+few specific items then includes the shared `setup.iss` file. Using Inno Setup 5
+(the Quick Start pack is suggested), compile those separate files: `setup.iss`
+doesn't compile on its own.  (You'll also need to be on the `windows-bin`
+branch to get the binaries.)
+
 Licenses
 --------
 This plugin is free and open-source software.
