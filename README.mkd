@@ -2,7 +2,7 @@ SketchUp to OSG Plugin
 ======================
 
 * Homepage: <https://github.com/rpavlik/sketchupToOSG>
-* Downloads: <https://github.com/rpavlik/sketchupToOSG/downloads>
+* Downloads: <https://github.com/rpavlik/sketchupToOSG/releases>
 * Release Changelog: <https://github.com/rpavlik/sketchupToOSG/blob/master/CHANGELOG.mkd>
 * Documentation: <https://github.com/rpavlik/sketchupToOSG#readme>
 
@@ -35,7 +35,7 @@ like your improvements integrated upstream.
 Getting Started
 ---------------
 A simple installer is now available - just [download it from
-GitHub](https://github.com/rpavlik/sketchupToOSG/downloads). If you
+GitHub](https://github.com/rpavlik/sketchupToOSG/releases). If you
 would prefer to do it the hard way, see "Manual Installation," below.
 
 No matter how you install, the results are the same. SketchUp should
