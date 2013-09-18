@@ -3,7 +3,7 @@
 #define OSGSOVersion "74"
 #define OTSOVersion "11"
 
-#define MyAppName "SketchUp to OpenSceneGraph Exporter Plugin"
+#define MyAppName "SketchUp to OpenSceneGraph Exporter Plugin - SketchUp " + TARGET_VERSION
 #define MyAppPublisher "Ryan Pavlik"
 #define MyAppPublisherURL "http://academic.cleardefinition.com"
 #define MyAppURL "http://github.com/rpavlik/sketchupToOSG"
@@ -12,7 +12,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppID={{78E42E4F-021F-4E10-B1C2-09CA19487330}
+AppID={#VersionSpecificGUID}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -24,7 +24,7 @@ DefaultDirName={code:GetSketchUpPluginsDir}
 DisableDirPage=yes
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
-OutputBaseFilename=setup-sketchupToOpenSceneGraphPlugin-{#MyAppVersion}
+OutputBaseFilename=setup-sketchupToOpenSceneGraphPlugin-{#MyAppVersion}-skp{#TARGET_VERSION}
 Compression=lzma/Max
 SolidCompression=true
 DirExistsWarning=no
@@ -80,17 +80,22 @@ begin
   Result := SketchUpPluginsDir;
 end;
 
+function IsValidDir(): Boolean;
+begin
+  Result := DirExists(SketchUpPluginsDir) and FileExists(SketchUpPluginsDir  + '\..\SketchUp.exe');
+end;
+
 function InitializeSetup(): Boolean;
-var
+var                                              
   KeepAsking: Boolean;
 begin
-  Result := True;
-  SketchUpPluginsDir := ExpandConstant('{pf32}\Google\Google SketchUp 8\Plugins\');
-  KeepAsking := not DirExists(SketchUpPluginsDir) or not FileExists(SketchUpPluginsDir  + '\..\SketchUp.exe')
+  Result := True;                                                                
+  SketchUpPluginsDir := ExpandConstant('{#DEFAULT_LOCATION}');
+  KeepAsking := not IsValidDir();
   while Result and KeepAsking do begin
-    SketchUpPluginsDir := ExpandConstant('{pf32}\Google\Google SketchUp 8\Plugins\');
-    Result := BrowseForFolder('Could not find the Google SketchUp 8 plugin directory: please select it',
+    SketchUpPluginsDir := ExpandConstant('{#DEFAULT_LOCATION}');
+    Result := BrowseForFolder('Could not find the SketchUp {#TARGET_VERSION} plugin directory: please select it',
       SketchUpPluginsDir, False);
-    KeepAsking := not DirExists(SketchUpPluginsDir) or not FileExists(SketchUpPluginsDir + '\..\SketchUp.exe')
+    KeepAsking := not IsValidDir();
   end;
 end;
