@@ -15,7 +15,7 @@ Original Author:
 
 Introduction
 ------------
-[Google SketchUp][1] is a pretty slick application, and [OpenSceneGraph
+[SketchUp][1] is a pretty slick application, and [OpenSceneGraph
 (OSG)][2] is a great 3D rendering system. SketchUp can export its models
 to [COLLADA (`.dae`)][3], and OpenSceneGraph conveniently has a plugin
 to load COLLADA models, though it (and/or its dependencies) can be tough
@@ -43,8 +43,9 @@ have an Export to OpenSceneGraph menu under File next time you start it.
 
 ![Export menu items](https://github.com/rpavlik/sketchupToOSG/raw/master/sketchup-to-osg.jpg)
 
-We have only used this with the free version of Google SketchUp 8 on Windows -
-compatibility with other versions is unknown.
+The installers are compatible with Google SketchUp 8, Google SketchUp Pro 8,
+and Trimble SketchUp 2013 (Make) on Windows. A port of the actual plugin to
+Mac OS X should be reasonably easy. We haven't tested any other versions.
 
 Unattended Installation (for Administrators)
 --------------------------------------------
@@ -67,6 +68,10 @@ Unzip this somewhere, and drop the `osgconv` folder and the
 Plugins folder, something like:
 
 > C:\Program Files (x86)\Google\Google SketchUp 8\Plugins
+
+or
+
+> C:\Program Files (x86)\SketchUp\SketchUp 2013\Plugins
 
 Licenses
 --------
@@ -112,7 +117,7 @@ Of course, this plugin would not be possible without the work of the
 [OpenSceneGraph][2] and [COLLADA-DOM][4] teams. Thanks to them and the
 others in the open-source ecosystem supporting them.
 
-[1]: http://sketchup.google.com/ "Google SketchUp"
+[1]: http://sketchup.com/ "SketchUp"
 [2]: http://www.openscenegraph.org/ "OpenSceneGraph"
 [3]: https://collada.org/ "COLLADA"
 [4]: http://www.collada.org/mediawiki/index.php/Portal:COLLADA_DOM "COLLADA-DOM"
