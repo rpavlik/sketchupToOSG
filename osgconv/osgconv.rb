@@ -106,7 +106,12 @@ module RP_SketchUpToOSG
 	    end
 
 	    # Tell OSG where it can find its plugins
-	    ENV['OSG_LIBRARY_PATH'] = @osgbindir
+	    if Object.RUBY_PLATFORM=~/darwin/
+	    	ENV['OSG_LIBRARY_PATH'] = @osgbindir + '/vendor/lib/osgPlugins-3.0.1'
+	    else
+	    	ENV['OSG_LIBRARY_PATH'] = @osgbindir
+	    end
+	    	
 
 	    # Change to output directory
 	    outdir = File.dirname(outputFn)
