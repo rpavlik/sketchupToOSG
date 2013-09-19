@@ -1,4 +1,4 @@
-#define MyAppVersion "1.6"
+#define MyAppVersion "1.6.2"
 #define OSGVersion "2.8.5"
 #define OSGSOVersion "74"
 #define OTSOVersion "11"
