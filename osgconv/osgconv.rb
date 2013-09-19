@@ -150,8 +150,9 @@ module RP_SketchUpToOSG
 
 	    # Find helper applications
 	    @osgbindir = File.dirname( __FILE__ )
-	    @osgconvbin = @osgbindir + "/osgconv.exe"
-	    @osgviewerbin = @osgbindir + "/osgviewer.exe"
+	    @binext = (Object.RUBY_PLATFORM=~/mswin/)? ".exe" : ""
+	    @osgconvbin = @osgbindir + "/osgconv" + @binext
+	    @osgviewerbin = @osgbindir + "/osgviewer" + @binext
 	    if @osgconvbin == nil or @osgviewerbin == nil
 		    UI.messagebox("Failed to find conversion/viewing tools!\nosgconv: #{@osgconvbin}\nosgviewer: #{@osgviewerbin}")
 		    return
