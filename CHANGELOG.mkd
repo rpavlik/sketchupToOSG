@@ -4,6 +4,12 @@ SketchUp to OSG Plugin CHANGELOG
 As always, for the full history, look at the Git commit log. This is an 
 abbreviated history for "normal" users. 
 
+Version 1.6.1
+-------------
+Tagged 19 September 2013.
+
+* Quickie release to be able to produce a Mac OS X version of the plugin - based on the great work of @jscasallas
+
 Version 1.6
 -----------
 Tagged 18 September 2013.
