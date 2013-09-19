@@ -106,7 +106,7 @@ module RP_SketchUpToOSG
 	    end
 
 	    # Tell OSG where it can find its plugins
-	    if Object.RUBY_PLATFORM=~/darwin/
+	    if Object::RUBY_PLATFORM=~/darwin/
 	    	ENV['OSG_LIBRARY_PATH'] = @osgbindir + '/vendor/lib/osgPlugins-3.0.1'
 	    else
 	    	ENV['OSG_LIBRARY_PATH'] = @osgbindir
@@ -155,7 +155,7 @@ module RP_SketchUpToOSG
 
 	    # Find helper applications
 	    @osgbindir = File.dirname( __FILE__ )
-	    @binext = (Object.RUBY_PLATFORM=~/mswin/)? ".exe" : ""
+	    @binext = (Object::RUBY_PLATFORM=~/mswin/)? ".exe" : ""
 	    @osgconvbin = @osgbindir + "/osgconv" + @binext
 	    @osgviewerbin = @osgbindir + "/osgviewer" + @binext
 	    if @osgconvbin == nil or @osgviewerbin == nil
