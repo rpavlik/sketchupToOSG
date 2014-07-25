@@ -110,11 +110,7 @@ module RP_SketchUpToOSG
 	    end
 
 	    # Tell OSG where it can find its plugins
-	    if Object::RUBY_PLATFORM=~/darwin/
-	    	ENV['OSG_LIBRARY_PATH'] = @osgbindir + '/vendor/lib/osgPlugins-3.0.1'
-	    else
-	    	ENV['OSG_LIBRARY_PATH'] = @osgbindir
-	    end
+	    ENV['OSG_LIBRARY_PATH'] = @osglibpath
 	    	
 
 	    # Change to output directory
@@ -157,12 +153,15 @@ module RP_SketchUpToOSG
 
     if( not file_loaded? __FILE__ )
 
-	    # Find helper applications
-	    @osgbindir = File.dirname( __FILE__ )
+	    # Find helper applications and directories
+	    @plugindir = File.dirname( __FILE__ )
+	    @osgbindir = (Object::RUBY_PLATFORM=~/mswin/)? @plugindir : @plugindir + '/vendor/bin'
+	    @osglibpath = (Object::RUBY_PLATFORM=~/mswin/)?  @plugindir : @plugindir + '/vendor/lib/osgPlugins-3.0.1'
 	    @binext = (Object::RUBY_PLATFORM=~/mswin/)? ".exe" : ""
 	    @osgconvbin = @osgbindir + "/osgconv" + @binext
 	    @osgviewerbin = @osgbindir + "/osgviewer" + @binext
-	    if @osgconvbin == nil or @osgviewerbin == nil
+
+	    if not File.exists?(@osgconvbin) or not File.exists?(@osgviewerbin)
 		    UI.messagebox("Failed to find conversion/viewing tools!\nosgconv: #{@osgconvbin}\nosgviewer: #{@osgviewerbin}")
 		    return
 	    end
