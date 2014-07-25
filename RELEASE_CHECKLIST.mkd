@@ -5,14 +5,30 @@ These are the items that need to be updated for each release:
 
 * Update `CHANGELOG.mkd` and add tag date.
 
-* Update `setup.iss` with new version.
+* Update these files with the new version:
 
-* Update `openscenegraph_exportviacollada.rb` with new version.
+  * `setup.iss`
 
-* Tag master branch `X.X`
+  * `openscenegraph_exportviacollada.rb`
 
-* Merge `master` into `windows-bin` branch, and tag `windows-X.X`
+  * `build/build-one.sh`
 
-* Push branches and tags to GitHub.
+* Check copyright dates in:
 
-* Build installer and upload to GitHub.
+  * `README.mkd`
+
+  * `openscenegraph_exportviacollada.rb`
+
+  * `osgconv/osgconv.rb`
+
+* Review `README.mkd` for accuracy and completeness.
+
+* Review issues list on GitHub.
+
+* Push master branch to GitHub.
+
+* Create release on GitHub, which will tag master branch `X.X`
+
+* Build `.rbz` files by running `build/build-all.sh` and upload to GitHub.
+
+* Build installers and upload to GitHub (optional - if you can)
