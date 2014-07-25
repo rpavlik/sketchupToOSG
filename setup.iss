@@ -48,24 +48,24 @@ Source: "osgconv\LICENSE_1_0.txt"; DestDir: "{app}\osgconv"; Flags: ignoreversio
 Source: "osgconv\osgconv.rb"; DestDir: "{app}\osgconv"; Flags: ignoreversion
 
 ; OpenSceneGraph
-Source: "osgconv\osg{#OSGSOVersion}-*.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion; 
-Source: "osgconv\ot{#OTSOVersion}-OpenThreads.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
-Source: "osgconv\osgPlugins-{#OSGVersion}\*.dll"; DestDir: "{app}\osgconv\osgPlugins-{#OSGVersion}"; Flags: IgnoreVersion;
+Source: "binaries\win\osg{#OSGSOVersion}-*.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion; 
+Source: "binaries\win\ot{#OTSOVersion}-OpenThreads.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
+Source: "binaries\win\osgPlugins-{#OSGVersion}\*.dll"; DestDir: "{app}\osgconv\osgPlugins-{#OSGVersion}"; Flags: IgnoreVersion;
 
 ; OSG Executables
-Source: "osgconv\osgconv.exe"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
-Source: "osgconv\osgviewer.exe"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
+Source: "binaries\win\osgconv.exe"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
+Source: "binaries\win\osgviewer.exe"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
 
 ; OSG Dependencies
-Source: "osgconv\freetype6.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
-Source: "osgconv\jpeg62.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
-Source: "osgconv\libcollada14dom22.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
-Source: "osgconv\libpng12.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
-Source: "osgconv\libtiff3.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
-Source: "osgconv\libungif4.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
-Source: "osgconv\libxml2.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
-Source: "osgconv\libungif4.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
-Source: "osgconv\zlib1.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
+Source: "binaries\win\freetype6.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
+Source: "binaries\win\jpeg62.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
+Source: "binaries\win\libcollada14dom22.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
+Source: "binaries\win\libpng12.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
+Source: "binaries\win\libtiff3.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
+Source: "binaries\win\libungif4.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
+Source: "binaries\win\libxml2.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
+Source: "binaries\win\libungif4.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
+Source: "binaries\win\zlib1.dll"; DestDir: "{app}\osgconv"; Flags: IgnoreVersion;
 
 [Icons]
 Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}"
