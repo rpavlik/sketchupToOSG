@@ -34,22 +34,49 @@ like your improvements integrated upstream.
 
 Getting Started
 ---------------
-A simple installer is now available - just [download it from
-GitHub](https://github.com/rpavlik/sketchupToOSG/releases). If you
-would prefer to do it the hard way, see "Manual Installation," below.
+The preferred way to install extensions into SketchUp is now using an
+`.rbz` file. See [these instructions][install-rbz] in the SketchUp
+documentation on how to do this.
+
+[install-rbz]:http://help.sketchup.com/en/article/38583
+
+We also (for some versions, at least) have some Windows `.exe`
+installers or Mac `.pkg` available. This used to be super cool, but is
+harder for us to maintain and isn't nearly as necessary since 8.0 M2
+simplified extension installation with `.rbz` support.
+
+[Download the one you want from GitHub.](https://github.com/rpavlik/sketchupToOSG/releases)
 
 No matter how you install, the results are the same. SketchUp should
 have an Export to OpenSceneGraph menu under File next time you start it.
 
 ![Export menu items](https://github.com/rpavlik/sketchupToOSG/raw/master/sketchup-to-osg.jpg)
 
-The installers are compatible with Google SketchUp 8, Google SketchUp Pro 8,
-and Trimble SketchUp 2013 (Make) on Windows. A port of the actual plugin to
-Mac OS X should be reasonably easy. We haven't tested any other versions.
+Platforms this should work on, and which file you want:
+- Windows
+  - SketchUp 8
+    - Tested free and pro
+    - Use a `su2013-win` download in either `.rbz` (starting with M2) or
+      `.exe` installer format.
+  - SketchUp 2013
+    - Tested Make (free)
+    - Use a `su2013-win` download in either `.rbz` or `.exe` installer format.
+  - SketchUp 2014
+    - Tested Make (free) and Pro
+    - Use a `su2014-win` in `.rbz` format.
+- Mac OS X
+  - SketchUp 8
+    - Use a `su2013-mac` download in either `.rbz` (starting with M2) or
+      `.pkg` installer format.
+  - SketchUp 2013
+    - Tested Make (free)
+    - Use a `su2013-mac` download in either `.rbz` or `.pkg` installer format.
+  - SketchUp 2014
+    - Use a `su2014-mac` in `.rbz` format.
 
-Unattended Installation (for Administrators)
---------------------------------------------
-The installer has been built with Inno Setup, so the normal command-line
+Advanced Use of `.exe` Installers: Unattended Installation (for Administrators)
+-------------------------------------------------------------------------------
+The `.exe` installer has been built with Inno Setup, so the normal command-line
 arguments used by that installer system are available. In particular, if
 you want to run an unattended install that shows the progress dialog
 while it's working, run a command like:
@@ -63,8 +90,7 @@ something like:
 
 Manual Installation
 -------------------
-Unzip this somewhere, and drop the `osgconv` folder and the
-`openscenegraph_exportviacollada.rb` file into your Google SketchUp
+Unzip an appropriate `.rbz` (`.zip` file in disguise) into your SketchUp
 Plugins folder, something like:
 
 > C:\Program Files (x86)\Google\Google SketchUp 8\Plugins
@@ -73,13 +99,41 @@ or
 
 > C:\Program Files (x86)\SketchUp\SketchUp 2013\Plugins
 
+Note that in SketchUp 2014, this has moved and (I think) there are also
+per-user plugin folders.
+
+If you're starting from a source zip, you'll have to overlay the appropriate
+binary files into the `osgconv` folder.
+
+Generating .rbz Files
+---------------------
+On a system with a `sh`-compatible shell (Mac or Linux, and possibly
+Windows with MSYS or Cygwin) and the `7za` compressor executable on the
+path, you can run the build scripts.
+
+To build all, run:
+
+    build/build-all.sh
+    
+To build just a single variant:
+
+    build/build-one.sh VER PLATFORM
+
+where `VER` is either `2014` or `2013`, and `PLATFORM` is either `mac`
+or `win`.
+
 Generating Installers
 ---------------------
+
+### Windows
 There's a `setup_X.iss` file for each version of SketchUp that defines a
 few specific items then includes the shared `setup.iss` file. Using Inno Setup 5
 (the Quick Start pack is suggested), compile those separate files: `setup.iss`
-doesn't compile on its own.  (You'll also need to be on the `windows-bin`
-branch to get the binaries.)
+doesn't compile on its own.
+
+### Mac
+The PackageMaker files are in the main source directory, though they
+need to be updated: see issue #15.
 
 Licenses
 --------
@@ -88,14 +142,16 @@ This plugin is free and open-source software.
 The Ruby scripts serving as the SketchUp plugin may be distributed under
 the following license:
 
-> Copyright Iowa State University 2011
+> Copyright Iowa State University 2011,2013,2014
 >
 > Distributed under the Boost Software License, Version 1.0.
 >
 > (See accompanying file `osgconv/LICENSE_1_0.txt` or copy at
 > <http://www.boost.org/LICENSE_1_0.txt>)
 
-A local copy of `fileutils.rb` from the upstream Ruby project is bundled.
+A local copy of `fileutils.rb` from the upstream Ruby project is bundled
+with the installers and the 2013-version `.rbz` files, under its
+license.
 
 An actual in-use instance of this plugin makes use of the OpenSceneGraph
 package and its dependencies, including but not limited to [COLLADA-DOM][4],
