@@ -4,6 +4,25 @@ SketchUp to OSG Plugin CHANGELOG
 As always, for the full history, look at the Git commit log. This is an 
 abbreviated history for "normal" users. 
 
+Version 1.7
+-----------
+Tagged 25 July 2014
+
+* Add support for SketchUp 2014.
+
+* Now generate `.rbz` packages with scripts, instead of installers.
+
+* Do away with having separate branches for the binaries.
+
+* Mac and Win support both "standard"
+
+* No functional changes to the plugin itself.
+
+Version 1.6.2
+-------------
+
+* Brown paper bag release: fix of the broken 1.6.1.
+
 Version 1.6.1
 -------------
 Tagged 19 September 2013.
