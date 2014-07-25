@@ -5,7 +5,11 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-require "osgconv/fileutils.rb"
+if Sketchup.version_number < 14000000
+	require "osgconv/fileutils.rb"
+else
+	require 'fileutils'
+end
 
 module RP_SketchUpToOSG
     # TODO de-duplication
