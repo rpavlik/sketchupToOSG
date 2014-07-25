@@ -4,8 +4,8 @@ SketchUp to OSG Plugin CHANGELOG
 As always, for the full history, look at the Git commit log. This is an 
 abbreviated history for "normal" users. 
 
-Version 1.7
------------
+Version 1.6.3
+-------------
 Tagged 25 July 2014
 
 * Add support for SketchUp 2014.

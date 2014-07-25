@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Package version.
-VER=1.7
+VER=1.6.3
 
 # SketchUp version: 2013 means 2013 and earlier (don't go much earlier
 # than 8.0 M1 for best results), while 2014 means 2014, and
