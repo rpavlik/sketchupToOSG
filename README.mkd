@@ -72,6 +72,7 @@ Platforms this should work on, and which file you want:
     - Tested Make (free)
     - Use a `su2013-mac` download in either `.rbz` or `.pkg` installer format.
   - SketchUp 2014
+    - Tested Make (free)
     - Use a `su2014-mac` in `.rbz` format.
 
 Advanced Use of `.exe` Installers: Unattended Installation (for Administrators)
