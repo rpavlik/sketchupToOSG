@@ -155,9 +155,9 @@ module RP_SketchUpToOSG
 
 	    # Find helper applications and directories
 	    @plugindir = File.dirname( __FILE__ )
-	    @osgbindir = (Object::RUBY_PLATFORM=~/mswin/)? @plugindir : @plugindir + '/vendor/bin'
-	    @osglibpath = (Object::RUBY_PLATFORM=~/mswin/)?  @plugindir : @plugindir + '/vendor/lib/osgPlugins-3.0.1'
-	    @binext = (Object::RUBY_PLATFORM=~/mswin/)? ".exe" : ""
+	    @osgbindir = (Object::RUBY_PLATFORM=~/mswin|x64-mingw32/)? @plugindir : @plugindir + '/vendor/bin'
+	    @osglibpath = (Object::RUBY_PLATFORM=~/mswin|x64-mingw32/)?  @plugindir : @plugindir + '/vendor/lib/osgPlugins-3.0.1'
+	    @binext = (Object::RUBY_PLATFORM=~/mswin|x64-mingw32/)? ".exe" : ""
 	    @osgconvbin = @osgbindir + "/osgconv" + @binext
 	    @osgviewerbin = @osgbindir + "/osgviewer" + @binext
 
