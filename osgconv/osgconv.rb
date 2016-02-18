@@ -22,9 +22,9 @@ module RP_SketchUpToOSG
 		    "Double-sided faces?",
 		    "Rotate to Y-UP?",
 		    "Convert to output units:"]
-	    defaults = ["yes", "yes", "yes", "yes", "meters"]
+	    defaults = ["no", "no", "yes", "no", "meters"]
 	    list = ["yes|no", "yes|no", "yes|no", "yes|no", "inches (no scaling)|feet|meters"]
-	    if extension == ".ive"
+	    if extension == ".ive" or extension == ".osgb"
 		    prompts << "Compress textures?"
 		    defaults << "yes"
 		    list << "yes|no"
@@ -43,8 +43,8 @@ module RP_SketchUpToOSG
 	    doRotate = (input[3] == "yes")
 	    doScale = (input[4] != "inches (no scaling)")
 	    doCompress = false
-	    if extension == ".ive"
-		    doCompress = (input[6] == "yes")
+	    if extension == ".ive" or extension == ".osgb"
+		    doCompress = (input[5] == "yes")
 	    end
 
 	    # Get model information
@@ -86,7 +86,11 @@ module RP_SketchUpToOSG
 	    convertArgs = [tempFn,
 		    outputFn,
 		    "--use-world-frame",
-		    "-O", "OutputRelativeTextures"]
+		    "-O", "OutputRelativeTextures daeUseSequencedTextureUnits"]
+		if extension == ".ive" or extension == ".osgb"
+			convertArgs << "-O"
+			convertArgs << "WriteImageHint=IncludeData"
+		end
 	    viewPseudoLoader = ""
 
 	    if doScale
@@ -111,7 +115,7 @@ module RP_SketchUpToOSG
 
 	    # Tell OSG where it can find its plugins
 	    ENV['OSG_LIBRARY_PATH'] = @osglibpath
-	    	
+		ENV['OSG_OPTIMIZER'] = 'DEFAULT,FLATTEN_STATIC_TRANSFORMS_DUPLICATING_SHARED_SUBGRAPHS,MERGE_GEODES,VERTEX_POSTTRANSFORM,VERTEX_PRETRANSFORM'
 
 	    # Change to output directory
 	    outdir = File.dirname(outputFn)
@@ -168,16 +172,19 @@ module RP_SketchUpToOSG
 
         osg_menu = UI.menu("File").add_submenu("Export to OpenSceneGraph")
 
-	    osg_menu.add_item("Export entire document to OSG...") { self.exportToOSG(false, ".osg") }
-
 	    osg_menu.add_item("Export entire document to IVE...") { self.exportToOSG(false, ".ive") }
+	    osg_menu.add_item("Export entire document to OSG text...") { self.exportToOSG(false, ".osgt") }
+		osg_menu.add_item("Export entire document to OSG binary...") { self.exportToOSG(false, ".osgb") }
 
 	    osg_menu.add_separator
 
-	    selItem = osg_menu.add_item("Export selection to OSG...") { self.exportToOSG(true, ".osg") }
+	    selItem = osg_menu.add_item("Export selection to IVE...") { self.exportToOSG(true, ".ive") }
 	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
 
-	    selItem = osg_menu.add_item("Export selection to IVE...") { self.exportToOSG(true, ".ive") }
+	    selItem = osg_menu.add_item("Export selection to OSG text...") { self.exportToOSG(true, ".osgt") }
+	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
+		
+	    selItem = osg_menu.add_item("Export selection to OSG binary...") { self.exportToOSG(true, ".osgb") }
 	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
 
 	    osg_menu.add_separator
