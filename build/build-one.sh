@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -x
+
 # Package version.
 VER=1.6.4
 
@@ -15,14 +17,14 @@ SRC=$(cd $(dirname $0) && cd .. && pwd)
 BUILDSCRIPTS=$(cd $(dirname $0) && pwd)
 
 # Where everything should be copied
-#SCRATCH=$(mktemp -d -t tmp.packagebuild.XXXXXXXXXX)
-#finish() {
-#  rm -rf "${SCRATCH}"
-#}
-#trap finish EXIT
+SCRATCH=$(mktemp -d -t tmp.packagebuild.XXXXXXXXXX)
+finish() {
+  rm -rf "${SCRATCH}"
+}
+trap finish EXIT
 
-SCRATCH="${SRC}/Temp"
-mkdir -p "$SCRATCH"
+#SCRATCH="${SRC}/Temp"
+#mkdir -p "$SCRATCH"
 DESTDIR="${SRC}/Output"
 mkdir -p "$DESTDIR"
 
@@ -60,12 +62,12 @@ echo
     cp -v --recursive -d  binaries/${PLATFORM}/* "${SCRATCH}/osgconv"
     
     echo "Build archive..."
-    # Compress to ZIP
-    rm -fv "${DESTBASE}.zip"
-    7za a -r "${DESTBASE}.zip" "../Temp/*"
+    # Compress to ZIP/RBZ
+    rm -fv "${DESTBASE}.rbz"
+    7za a -tzip -r "${DESTBASE}.rbz" "${SCRATCH}"/*
     
     # Rename to RBZ
-    mv "${DESTBASE}.zip" "${DESTBASE}.rbz"
+    #mv "${DESTBASE}.zip" "${DESTBASE}.rbz"
     echo " - Generated ${DESTBASE}.rbz"
 )
 
