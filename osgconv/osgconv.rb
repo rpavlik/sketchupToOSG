@@ -17,17 +17,39 @@ module RP_SketchUpToOSG
 
     def self.exportToOSG(selectionOnly, extension)
 	    # Present an options dialog
-	    prompts = ["Open in viewer after export?",
+	    prompts = [
+            "Open in viewer after export?",
+            "Export format:",
 		    "Export edges?",
 		    "Double-sided faces?",
-            "Triangulate All Faces?",
+            "Tessellation:",
             "Preserve Instancing?",
 		    "Rotate to Y-UP?",
 		    "Convert to output units:",
             "Use STATIC transform?"
             ]
-	    defaults = ["no", "no", "no", "yes", "no", "no", "meters", "yes"]
-	    list = ["yes|no", "yes|no", "yes|no", "yes|no", "yes|no", "yes|no", "inches (no scaling)|feet|meters", "yes|no"]
+	    defaults = [
+            "no",       # viewer
+            "DAE",      # format
+            "no",       # edges
+            "no",       # double-sided
+            "Sketchup", # Tessellation
+            "no",       # preserve instancing
+            "no",       # rotate
+            "meter",    # units
+            "yes"       # static transform
+        ]
+	    list = [
+            "yes|no",              # viewer
+            "DAE|OBJ",             # format
+            "yes|no",              # edges
+            "yes|no",              # double-sided
+            "Sketchup|None|Polygons|Polygons as Triangle Fan",        # Tessellation
+            "yes|no",              # preserve instancing
+            "yes|no",              # rotate
+            "inch|feet|meter",  # units
+            "yes|no"               # static transform
+        ]
 	    if extension == ".ive" or extension == ".osgb"
 		    prompts << "Compress textures?"
 		    defaults << "yes"
@@ -42,18 +64,22 @@ module RP_SketchUpToOSG
 
 	    # Interpret results of options dialog
 	    view = (input[0] == "yes")
-	    edges = (input[1] == "yes")
-	    doublesided = (input[2] == "yes")
-        doTriangulate = (input[3] == "yes")
-        doPreserveInstancing = (input[4] == "yes")
-	    doRotate = (input[5] == "yes")
-	    doScale = (input[6] != "inches (no scaling)")
-        scale_units = input[6]
+        exportFormat = input[1].downcase
+        exportFormatDAE = (exportFormat == "dae")
+        exportFormatOBJ = (exportFormat == "obj")
+	    edges = (input[2] == "yes")
+	    doublesided = (input[3] == "yes")
+        tessellation = input[4]
+        doTriangulate = (tessellation == "Sketchup")
+        doPreserveInstancing = (input[5] == "yes")
+	    doRotate = (input[6] == "yes")
+	    doScale = (input[7] != "inch")
+        scale_units = input[7]
 	    doCompress = false
 	    if extension == ".ive" or extension == ".osgb"
-		    doCompress = (input[7] == "yes")
+		    doCompress = (input[8] == "yes")
 	    end
-        useStaticTransform = (input[8] == "yes")
+        useStaticTransform = (input[9] == "yes")
 
 	    # Get model information
 	    model = Sketchup.active_model
@@ -73,33 +99,71 @@ module RP_SketchUpToOSG
 	    # Flag: don't delete the export texture dir if it already exists before export
 	    skipDeleteDir = File.directory?(outputFn + "-export")
 
-	    # Export to DAE
-	    Sketchup.status_text = "Exporting to a temporary DAE file..."
-	    tempFn = outputFn + "-export.dae"
+        Sketchup.status_text = "Exporting to a temporary ." + exportFormat + " file..."
+        tempFn = outputFn + "-export." + exportFormat
         logfile = File.open(outputFn + ".log", "w")
-	    options_hash = {:triangulated_faces   => doTriangulate,
-					    :doublesided_faces    => doublesided,
-					    :edges                => edges,
-					    :materials_by_layer   => false,
-					    :author_attribution   => true,
-					    :texture_maps         => true,
-					    :selectionset_only    => selectionOnly,
-					    :preserve_instancing  => doPreserveInstancing,
-                        :camera_lookat        => false}
-        logfile.puts "Export to DAE options: " + options_hash.to_s
-	    status = model.export tempFn, options_hash
-	    if (not status)
-		    UI.messagebox("Could not export to DAE")
+
+        options_hash = {}
+	    # Export to DAE
+        if exportFormatDAE
+            options_hash = {:triangulated_faces   => doTriangulate,
+                            :doublesided_faces    => doublesided,
+                            :edges                => edges,
+                            :materials_by_layer   => false,
+                            :author_attribution   => true,
+                            :texture_maps         => true,
+                            :selectionset_only    => selectionOnly,
+                            :preserve_instancing  => doPreserveInstancing,
+                            :camera_lookat        => false}
+        elsif exportFormatOBJ
+            options_hash = {:triangulated_faces   => doTriangulate,
+                            :units                => scale_units,
+                            :doublesided_faces    => doublesided,
+                            :edges                => edges,
+                            :texture_maps         => true,
+                            :selectionset_only    => selectionOnly
+                           }
+        else
+            status = 0
+        end
+        logfile.puts "Export model options: " + options_hash.to_s
+        status = model.export tempFn, options_hash
+        if (not status)
+            UI.messagebox("Could not export to " + exportFormat)
             logfile.close
-		    return
-	    end
+            return
+        end
 
 	    # Set up command line arguments
 	    convertArgs = [tempFn,
 		    outputFn,
 		    "--use-world-frame",
-		    "-O", "OutputRelativeTextures daeUseSequencedTextureUnits"]
-		if extension == ".ive" or extension == ".osgb"
+		    "-O", "OutputRelativeTextures"]
+        if exportFormatDAE
+			convertArgs << "-O"
+			convertArgs << "daeUseSequencedTextureUnits"
+            if not doTriangulate
+                convertArgs << "-O"
+                if tessellation == "None"
+                    convertArgs << "daeTessellateNone"
+                elsif tessellation == "Polygons"
+                    convertArgs << "daeTessellatePolygons"
+                else # if tessellation == "Polygons as Triangle Fan"
+                    convertArgs << "daeTessellatePolygonsAsTriFans"
+                end
+            end
+        elsif exportFormatOBJ
+            if not doTriangulate
+                convertArgs << "-O"
+                if tessellation == "None"
+                    convertArgs << "noTriStripPolygons"
+                else
+                    convertArgs << "noTesselateLargePolygons"
+                end
+            end
+        end
+
+        if extension == ".ive" or extension == ".osgb"
 			convertArgs << "-O"
 			convertArgs << "WriteImageHint=IncludeData"
 		end
@@ -107,7 +171,7 @@ module RP_SketchUpToOSG
 
 	    if doScale
             scale = "1.0"
-		    if scale_units == "meters"
+		    if scale_units == "m"
 			    scale = "0.02539999969303608" # inches to meters
 		    elsif scale_units == "feet"
 			    scale = "0.083333" # inches to feet
@@ -144,8 +208,15 @@ module RP_SketchUpToOSG
 		    # Run the converter
 		    Sketchup.status_text = "Converting .dae temp file to OpenSceneGraph format..."
             logfile.puts "Converting .dae temp file to OpenSceneGraph format..."
-            logfile.puts @osgconvbin, *convertArgs
-		    status = Kernel.system(@osgconvbin, *convertArgs)
+            logfile.puts @osgconvbin + " \"" + convertArgs.join("\" \"") + "\""
+		    #status = Kernel.system(@osgconvbin, *convertArgs)
+            require 'open3'
+            Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
+                status = wait_thr.value
+                logfile.puts @osgconvbin + " status " + status.to_s
+                logfile.puts osgconv_stdout.read
+                logfile.puts osgconv_stderr.read
+            end
 
 		    if not status
 			    UI.messagebox("Failed when converting #{tempFn} to #{outputFn}! Temporary file not deleted, for your inspection.")
