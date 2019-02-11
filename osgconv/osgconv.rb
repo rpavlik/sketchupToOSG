@@ -41,7 +41,7 @@ module RP_SketchUpToOSG
         ]
 	    list = [
             "yes|no",              # viewer
-            "DAE|OBJ",             # format
+            "DAE",                 # format
             "yes|no",              # edges
             "yes|no",              # double-sided
             "Sketchup|None|Polygons|Polygons as Triangle Fan",        # Tessellation
