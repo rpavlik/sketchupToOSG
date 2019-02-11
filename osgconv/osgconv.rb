@@ -50,11 +50,16 @@ module RP_SketchUpToOSG
             "inch|feet|meter",  # units
             "yes|no"               # static transform
         ]
-	    if extension == ".ive" or extension == ".osgb"
-		    prompts << "Compress textures?"
-		    defaults << "yes"
-		    list << "yes|no"
-	    end
+        if extension == ".ive" or extension == ".osgb"
+            prompts << "Compress textures?"
+            defaults << "yes"
+            list << "yes|no"
+        end
+        if extension == ".osgb" or extension == ".osgx" or extension == ".osgt"
+            prompts << "Target OSG version:"
+            defaults << "latest"
+            list << @osg_versions.keys.join('|')
+        end
 	    input = UI.inputbox prompts, defaults, list, "OpenSceneGraph Export Options"
 
 	    if input == nil
@@ -76,10 +81,16 @@ module RP_SketchUpToOSG
 	    doScale = (input[7] != "inch")
         scale_units = input[7]
 	    doCompress = false
+        targetOSGVersion = ""
+        useStaticTransform = (input[8] == "yes")
 	    if extension == ".ive" or extension == ".osgb"
-		    doCompress = (input[8] == "yes")
+		    doCompress = (input[9] == "yes")
 	    end
-        useStaticTransform = (input[9] == "yes")
+        if extension == ".osgb" or extension == ".osgx" or extension == ".osgt"
+            targetOSGVersion = input[10]
+        end
+
+        targetOSGVersion_so = @osg_versions.fetch(targetOSGVersion, 0)
 
 	    # Get model information
 	    model = Sketchup.active_model
@@ -166,6 +177,11 @@ module RP_SketchUpToOSG
         if extension == ".ive" or extension == ".osgb"
 			convertArgs << "-O"
 			convertArgs << "WriteImageHint=IncludeData"
+        end
+        if targetOSGVersion_so != 0
+            # pass OSG SO version number to make sure the file is readable by an earlier version
+			convertArgs << "-O"
+			convertArgs << "TargetFileVersion=#{targetOSGVersion_so}"
 		end
 	    viewPseudoLoader = ""
 
@@ -189,7 +205,11 @@ module RP_SketchUpToOSG
 	    if doCompress
 		    convertArgs << "--compressed"
 	    end
-        
+        if extension == ".osgb"
+            convertArgs << "-O"
+            convertArgs << "Compressor=zlib"
+        end
+
 
 	    # Tell OSG where it can find its plugins
 	    ENV['OSG_LIBRARY_PATH'] = @osglibpath
@@ -206,19 +226,25 @@ module RP_SketchUpToOSG
 	    outdir = File.dirname(outputFn)
 	    Dir.chdir outdir do
 		    # Run the converter
-		    Sketchup.status_text = "Converting .dae temp file to OpenSceneGraph format..."
-            logfile.puts "Converting .dae temp file to OpenSceneGraph format..."
+		    Sketchup.status_text = "Converting .#{exportFormat} temp file to OpenSceneGraph format..."
+            logfile.puts "Converting .#{exportFormat} temp file to OpenSceneGraph format..."
             logfile.puts @osgconvbin + " \"" + convertArgs.join("\" \"") + "\""
-		    #status = Kernel.system(@osgconvbin, *convertArgs)
-            require 'open3'
-            Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
-                status = wait_thr.value
-                logfile.puts @osgconvbin + " status " + status.to_s
-                logfile.puts osgconv_stdout.read
-                logfile.puts osgconv_stderr.read
+            status = -1
+            begin
+                #status = Kernel.system(@osgconvbin, *convertArgs)
+                require 'open3'
+                Open3.popen3(@osgconvbin, *convertArgs) do |osgconv_stdin, osgconv_stdout, osgconv_stderr, wait_thr|
+                    status = wait_thr.value
+                    logfile.puts @osgconvbin + " status " + status.to_s
+                    logfile.puts osgconv_stdout.read
+                    logfile.puts osgconv_stderr.read
+                end
+            rescue StandardError => msg
+                logfile.puts msg
             end
 
-		    if not status
+            if status != 0
+                logfile.puts "Failed when converting #{tempFn} to #{outputFn}! Temporary file not deleted, for your inspection."
 			    UI.messagebox("Failed when converting #{tempFn} to #{outputFn}! Temporary file not deleted, for your inspection.")
                 logfile.close
 			    return
@@ -226,6 +252,7 @@ module RP_SketchUpToOSG
 	    end
 
 	    # Delete temporary file(s)
+        logfile.puts "Delete temporary file #{tempFn}"
 	    File.delete(tempFn)
 	    if not skipDeleteDir
 		    FileUtils.rm_rf outputFn + "-export"
@@ -236,11 +263,13 @@ module RP_SketchUpToOSG
 	    if view
 		    Sketchup.status_text = "Launching viewer of exported model..."
             logfile.puts "Launching viewer of exported model..."
-            logfile.puts @osgviewerbin, "--window", "50", "50", "640", "480", outputFn + viewPseudoLoader
-		    Thread.new{ system(@osgviewerbin, "--window", "50", "50", "640", "480", outputFn + viewPseudoLoader) }
+            viewerArgs = ["--window", "50", "50", "640", "480"]
+            viewerArgs << outputFn + viewPseudoLoader
+            logfile.puts "Start viewer " + @osgviewerbin + " \"" + viewerArgs.join("\" \"") + "\""
+		    Thread.new{ system(@osgviewerbin, *viewerArgs) }
 		    extraMessage = "Viewer launched - press Esc to close it."
 	    end
-        logfile.puts "Export of #{outputFn} successful!  #{extraMessage}"
+        logfile.puts "Export of #{outputFn} successful!"
         logfile.close
 
 	    Sketchup.status_text = "Export of #{outputFn} successful!  #{extraMessage}"
@@ -268,6 +297,13 @@ module RP_SketchUpToOSG
 		    UI.messagebox("Failed to find conversion/viewing tools!\nosgconv: #{@osgconvbin}\nosgviewer: #{@osgviewerbin}")
 		    return
 	    end
+
+        @osg_versions = {
+            "latest" => 158,
+            "3.6" => 158,
+            "3.5" => 148,
+            "3.4" => 131
+            }
 
         osg_menu = UI.menu("File").add_submenu("Export to OpenSceneGraph")
 
