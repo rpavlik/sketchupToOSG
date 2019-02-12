@@ -321,12 +321,15 @@ module RP_SketchUpToOSG
 	    @osglibpath = (Object::RUBY_PLATFORM=~/mswin|x64-mingw32/)?  @plugindir : @plugindir + '/vendor/lib/osgPlugins-3.5.6'
 	    @binext = (Object::RUBY_PLATFORM=~/mswin|x64-mingw32/)? ".exe" : ""
         @osg_debug_version = false
-        File.open(@plugindir + '/osg.ini', "r") do |f|
-            f.each_line do |line|
-                if line.start_with?('OSG=')
-                    @osgbindir = line[4..-1].rstrip
-                elsif line.start_with?('debug=')
-                    @osg_debug_version = line[6..-1].rstrip.to_i != 0
+        @osg_ini = @plugindir + '/osg.ini'
+        if File.file?(@osg_ini)
+            File.open(@osg_ini, "r") do |f|
+                f.each_line do |line|
+                    if line.start_with?('OSG=')
+                        @osgbindir = line[4..-1].rstrip
+                    elsif line.start_with?('debug=')
+                        @osg_debug_version = line[6..-1].rstrip.to_i != 0
+                    end
                 end
             end
         end
