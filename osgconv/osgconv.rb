@@ -13,7 +13,7 @@ end
 
 module RP_SketchUpToOSG
     # TODO de-duplication
-    @osg_exportviacollada_extension_url = "https://github.com/rpavlik/sketchupToOSG#readme"
+    @osg_exportviacollada_extension_url = "https://github.com/aroth-fastprotect/sketchupToOSG#readme"
 
     def self.exportToOSG(selectionOnly, extension)
 	    # Present an options dialog
@@ -26,7 +26,9 @@ module RP_SketchUpToOSG
             "Preserve Instancing?",
 		    "Rotate to Y-UP?",
 		    "Convert to output units:",
-            "Use STATIC transform?"
+            "Use STATIC transform?",
+            "Optimize material usage?",
+            "Keep temporary files?",
             ]
 	    defaults = [
             "no",       # viewer
@@ -37,7 +39,9 @@ module RP_SketchUpToOSG
             "no",       # preserve instancing
             "no",       # rotate
             "meter",    # units
-            "yes"       # static transform
+            "yes",      # static transform
+            "yes",      # optimize material usage
+            "no",       # temp files
         ]
 	    list = [
             "yes|no",              # viewer
@@ -47,8 +51,10 @@ module RP_SketchUpToOSG
             "Sketchup|None|Polygons|Polygons as Triangle Fan",        # Tessellation
             "yes|no",              # preserve instancing
             "yes|no",              # rotate
-            "inch|feet|meter",  # units
-            "yes|no"               # static transform
+            "inch|feet|meter",     # units
+            "yes|no",              # static transform
+            "yes|no",              # optimize material usage
+            "yes|no",              # temp files
         ]
         if extension == ".ive" or extension == ".osgb"
             prompts << "Compress textures?"
@@ -68,26 +74,42 @@ module RP_SketchUpToOSG
 	    end
 
 	    # Interpret results of options dialog
-	    view = (input[0] == "yes")
-        exportFormat = input[1].downcase
+        input_index = 0
+	    view = (input[input_index] == "yes")
+        input_index+=1
+        exportFormat = input[input_index].downcase
+        input_index+=1
         exportFormatDAE = (exportFormat == "dae")
         exportFormatOBJ = (exportFormat == "obj")
-	    edges = (input[2] == "yes")
-	    doublesided = (input[3] == "yes")
-        tessellation = input[4]
+	    edges = (input[input_index] == "yes")
+        input_index+=1
+	    doublesided = (input[input_index] == "yes")
+        input_index+=1
+        tessellation = input[input_index]
+        input_index+=1
         doTriangulate = (tessellation == "Sketchup")
-        doPreserveInstancing = (input[5] == "yes")
-	    doRotate = (input[6] == "yes")
-	    doScale = (input[7] != "inch")
-        scale_units = input[7]
+        doPreserveInstancing = (input[input_index] == "yes")
+        input_index+=1
+	    doRotate = (input[input_index] == "yes")
+        input_index+=1
+        scale_units = input[input_index]
+        input_index+=1
+	    doScale = (scale_units != "inch")
 	    doCompress = false
         targetOSGVersion = ""
-        useStaticTransform = (input[8] == "yes")
+        useStaticTransform = (input[input_index] == "yes")
+        input_index+=1
+        optimizeMaterialUsage = (input[input_index] == "yes")
+        input_index+=1
+        keepTemporaryFiles = (input[input_index] == "yes")
+        input_index+=1
 	    if extension == ".ive" or extension == ".osgb"
-		    doCompress = (input[9] == "yes")
+		    doCompress = (input[input_index] == "yes")
+            input_index+=1
 	    end
         if extension == ".osgb" or extension == ".osgx" or extension == ".osgt"
-            targetOSGVersion = input[10]
+            targetOSGVersion = input[input_index]
+            input_index+=1
         end
 
         targetOSGVersion_so = @osg_versions.fetch(targetOSGVersion, 0)
@@ -213,11 +235,15 @@ module RP_SketchUpToOSG
 
 	    # Tell OSG where it can find its plugins
 	    ENV['OSG_LIBRARY_PATH'] = @osglibpath
-		ENV['OSG_OPTIMIZER'] = 'DEFAULT,FLATTEN_STATIC_TRANSFORMS,FLATTEN_STATIC_TRANSFORMS_DUPLICATING_SHARED_SUBGRAPHS,MERGE_GEODES,VERTEX_POSTTRANSFORM,VERTEX_PRETRANSFORM,BUFFER_OBJECT_SETTINGS'
+		ENV['OSG_OPTIMIZER'] = 'DEFAULT,FLATTEN_STATIC_TRANSFORMS,FLATTEN_STATIC_TRANSFORMS_DUPLICATING_SHARED_SUBGRAPHS,MERGE_GEODES,VERTEX_POSTTRANSFORM,VERTEX_PRETRANSFORM,BUFFER_OBJECT_SETTINGS,TEXTURE_ATLAS_BUILDER'
         if useStaticTransform
-            ENV['OSG_OPTIMIZER'] = ENV['OSG_OPTIMIZER'] + 'PATCH_UNSPECIFIED_TRANSFORMS'
+            ENV['OSG_OPTIMIZER'] = ENV['OSG_OPTIMIZER'] + ',PATCH_UNSPECIFIED_TRANSFORMS'
+        end
+        if optimizeMaterialUsage
+            ENV['OSG_OPTIMIZER'] = ENV['OSG_OPTIMIZER'] + ',COMBINE_GEOMETRIES_BY_STATESET'
         end
 
+        logfile.puts "OSG binary dir: " + @osgbindir
         logfile.puts "Environment: "
         logfile.puts "OSG_LIBRARY_PATH=" + ENV['OSG_LIBRARY_PATH'].to_s
         logfile.puts "OSG_OPTIMIZER=" + ENV['OSG_OPTIMIZER'].to_s
@@ -251,12 +277,16 @@ module RP_SketchUpToOSG
 		    end
 	    end
 
-	    # Delete temporary file(s)
-        logfile.puts "Delete temporary file #{tempFn}"
-	    File.delete(tempFn)
-	    if not skipDeleteDir
-		    FileUtils.rm_rf outputFn + "-export"
-	    end
+        if keepTemporaryFiles
+            logfile.puts "Keep temporary file #{tempFn}"
+        else
+            # Delete temporary file(s)
+            logfile.puts "Delete temporary file #{tempFn}"
+            File.delete(tempFn)
+            if not skipDeleteDir
+                FileUtils.rm_rf outputFn + "-export"
+            end
+        end
 
 	    # View file if requested
 	    extraMessage = ""
@@ -290,6 +320,20 @@ module RP_SketchUpToOSG
 	    @osgbindir = (Object::RUBY_PLATFORM=~/mswin|x64-mingw32/)? @plugindir : @plugindir + '/vendor/bin'
 	    @osglibpath = (Object::RUBY_PLATFORM=~/mswin|x64-mingw32/)?  @plugindir : @plugindir + '/vendor/lib/osgPlugins-3.5.6'
 	    @binext = (Object::RUBY_PLATFORM=~/mswin|x64-mingw32/)? ".exe" : ""
+        @osg_debug_version = false
+        File.open(@plugindir + '/osg.ini', "r") do |f|
+            f.each_line do |line|
+                if line.start_with?('OSG=')
+                    @osgbindir = line[4..-1].rstrip
+                elsif line.start_with?('debug=')
+                    @osg_debug_version = line[6..-1].rstrip.to_i != 0
+                end
+            end
+        end
+        if @osg_debug_version
+            @binext = "d" + @binext
+        end
+        @osgversionbin = @osgbindir + "/osgversion" + @binext
 	    @osgconvbin = @osgbindir + "/osgconv" + @binext
 	    @osgviewerbin = @osgbindir + "/osgviewer" + @binext
 
