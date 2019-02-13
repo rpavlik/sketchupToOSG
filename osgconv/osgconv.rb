@@ -209,7 +209,7 @@ module RP_SketchUpToOSG
 
 	    if doScale
             scale = "1.0"
-		    if scale_units == "m"
+		    if scale_units == "meter"
 			    scale = "0.02539999969303608" # inches to meters
 		    elsif scale_units == "feet"
 			    scale = "0.083333" # inches to feet
