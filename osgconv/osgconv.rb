@@ -28,6 +28,7 @@ module RP_SketchUpToOSG
 		    "Convert to output units:",
             "Use STATIC transform?",
             "Optimize material usage?",
+            "Use white as default ambient material?",
             "Keep temporary files?",
             ]
 	    defaults = [
@@ -41,6 +42,7 @@ module RP_SketchUpToOSG
             "meter",    # units
             "yes",      # static transform
             "yes",      # optimize material usage
+            "yes",      # Use white as default ambient material
             "no",       # temp files
         ]
 	    list = [
@@ -54,6 +56,7 @@ module RP_SketchUpToOSG
             "inch|feet|meter",     # units
             "yes|no",              # static transform
             "yes|no",              # optimize material usage
+            "yes|no",              # Use white as default ambient material
             "yes|no",              # temp files
         ]
         if extension == ".ive" or extension == ".osgb"
@@ -100,6 +103,8 @@ module RP_SketchUpToOSG
         useStaticTransform = (input[input_index] == "yes")
         input_index+=1
         optimizeMaterialUsage = (input[input_index] == "yes")
+        input_index+=1
+        useDefaultMaterialAmbient = (input[input_index] == "yes")
         input_index+=1
         keepTemporaryFiles = (input[input_index] == "yes")
         input_index+=1
@@ -168,42 +173,38 @@ module RP_SketchUpToOSG
         end
 
 	    # Set up command line arguments
-	    convertArgs = [tempFn,
-		    outputFn,
-		    "--use-world-frame",
-		    "-O", "OutputRelativeTextures"]
+        pluginOpts = ["OutputRelativeTextures"]
+	    convertArgs = []
         if exportFormatDAE
-			convertArgs << "-O"
-			convertArgs << "daeUseSequencedTextureUnits"
+			pluginOpts << "daeUseSequencedTextureUnits"
             if not doTriangulate
-                convertArgs << "-O"
                 if tessellation == "None"
-                    convertArgs << "daeTessellateNone"
+                    pluginOpts << "daeTessellateNone"
                 elsif tessellation == "Polygons"
-                    convertArgs << "daeTessellatePolygons"
+                    pluginOpts << "daeTessellatePolygons"
                 else # if tessellation == "Polygons as Triangle Fan"
-                    convertArgs << "daeTessellatePolygonsAsTriFans"
+                    pluginOpts << "daeTessellatePolygonsAsTriFans"
                 end
+            end
+            if useDefaultMaterialAmbient
+                pluginOpts << "daeDefaultMaterialAmbientWhite"
             end
         elsif exportFormatOBJ
             if not doTriangulate
-                convertArgs << "-O"
                 if tessellation == "None"
-                    convertArgs << "noTriStripPolygons"
+                    pluginOpts << "noTriStripPolygons"
                 else
-                    convertArgs << "noTesselateLargePolygons"
+                    pluginOpts << "noTesselateLargePolygons"
                 end
             end
         end
 
         if extension == ".ive" or extension == ".osgb"
-			convertArgs << "-O"
-			convertArgs << "WriteImageHint=IncludeData"
+			pluginOpts << "WriteImageHint=IncludeData"
         end
         if targetOSGVersion_so != 0
             # pass OSG SO version number to make sure the file is readable by an earlier version
-			convertArgs << "-O"
-			convertArgs << "TargetFileVersion=#{targetOSGVersion_so}"
+			pluginOpts << "TargetFileVersion=#{targetOSGVersion_so}"
 		end
 	    viewPseudoLoader = ""
 
@@ -228,9 +229,10 @@ module RP_SketchUpToOSG
 		    convertArgs << "--compressed"
 	    end
         if extension == ".osgb"
-            convertArgs << "-O"
-            convertArgs << "Compressor=zlib"
+            pluginOpts << "Compressor=zlib"
         end
+
+        fullConvertArgs = [tempFn,outputFn,"--use-world-frame", "-O", pluginOpts.join(" ") ] + convertArgs
 
 
 	    # Tell OSG where it can find its plugins
@@ -244,6 +246,8 @@ module RP_SketchUpToOSG
         end
 
         logfile.puts "OSG binary dir: " + @osgbindir
+        logfile.puts "osgconv: " + @osgconvbin
+        logfile.puts "osgviewer: " + @osgviewerbin
         logfile.puts "Environment: "
         logfile.puts "OSG_LIBRARY_PATH=" + ENV['OSG_LIBRARY_PATH'].to_s
         logfile.puts "OSG_OPTIMIZER=" + ENV['OSG_OPTIMIZER'].to_s
@@ -254,12 +258,12 @@ module RP_SketchUpToOSG
 		    # Run the converter
 		    Sketchup.status_text = "Converting .#{exportFormat} temp file to OpenSceneGraph format..."
             logfile.puts "Converting .#{exportFormat} temp file to OpenSceneGraph format..."
-            logfile.puts @osgconvbin + " \"" + convertArgs.join("\" \"") + "\""
+            logfile.puts @osgconvbin + " \"" + fullConvertArgs.join("\" \"") + "\""
             status = -1
             begin
-                #status = Kernel.system(@osgconvbin, *convertArgs)
+                #status = Kernel.system(@osgconvbin, *fullConvertArgs)
                 require 'open3'
-                Open3.popen3(@osgconvbin, *convertArgs) do |osgconv_stdin, osgconv_stdout, osgconv_stderr, wait_thr|
+                Open3.popen3(@osgconvbin, *fullConvertArgs) do |osgconv_stdin, osgconv_stdout, osgconv_stderr, wait_thr|
                     status = wait_thr.value
                     logfile.puts @osgconvbin + " status " + status.to_s
                     logfile.puts osgconv_stdout.read
@@ -327,6 +331,11 @@ module RP_SketchUpToOSG
                 f.each_line do |line|
                     if line.start_with?('OSG=')
                         @osgbindir = line[4..-1].rstrip
+                        if (Object::RUBY_PLATFORM=~/mswin|x64-mingw32/)
+                            @osglibpath = @osgbindir
+                        else
+                            @osglibpath = @osgbindir + '/../lib'
+                        end
                     elsif line.start_with?('debug=')
                         @osg_debug_version = line[6..-1].rstrip.to_i != 0
                     end
