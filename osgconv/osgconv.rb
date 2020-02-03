@@ -351,42 +351,42 @@ module RP_SketchUpToOSG
 
 	    if not File.exists?(@osgconvbin) or not File.exists?(@osgviewerbin)
 		    UI.messagebox("Failed to find conversion/viewing tools!\nosgconv: #{@osgconvbin}\nosgviewer: #{@osgviewerbin}")
-		    return
+        else
+
+            @osg_versions = {
+                "latest" => 158,
+                "3.6" => 158,
+                "3.5" => 148,
+                "3.4" => 131
+                }
+
+            osg_menu = UI.menu("File").add_submenu("Export to OpenSceneGraph")
+
+            osg_menu.add_item("Export entire document to IVE...") { self.exportToOSG(false, ".ive") }
+            osg_menu.add_item("Export entire document to OSG binary...") { self.exportToOSG(false, ".osgb") }
+            osg_menu.add_item("Export entire document to OSG XML...") { self.exportToOSG(false, ".osgx") }
+            osg_menu.add_item("Export entire document to OSG text...") { self.exportToOSG(false, ".osgt") }
+
+            osg_menu.add_separator
+
+            selItem = osg_menu.add_item("Export selection to IVE...") { self.exportToOSG(true, ".ive") }
+            osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
+            
+            selItem = osg_menu.add_item("Export selection to OSG binary...") { self.exportToOSG(true, ".osgb") }
+            osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
+
+            selItem = osg_menu.add_item("Export selection to OSG XML...") { self.exportToOSG(true, ".osgx") }
+            osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
+
+            selItem = osg_menu.add_item("Export selection to OSG text...") { self.exportToOSG(true, ".osgt") }
+            osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
+
+            osg_menu.add_separator
+
+            osg_menu.add_item("Visit SketchupToOSG homepage") { UI.openURL(@osg_exportviacollada_extension_url) }
+
+            file_loaded __FILE__
 	    end
-
-        @osg_versions = {
-            "latest" => 158,
-            "3.6" => 158,
-            "3.5" => 148,
-            "3.4" => 131
-            }
-
-        osg_menu = UI.menu("File").add_submenu("Export to OpenSceneGraph")
-
-	    osg_menu.add_item("Export entire document to IVE...") { self.exportToOSG(false, ".ive") }
-		osg_menu.add_item("Export entire document to OSG binary...") { self.exportToOSG(false, ".osgb") }
-        osg_menu.add_item("Export entire document to OSG XML...") { self.exportToOSG(false, ".osgx") }
-	    osg_menu.add_item("Export entire document to OSG text...") { self.exportToOSG(false, ".osgt") }
-
-	    osg_menu.add_separator
-
-	    selItem = osg_menu.add_item("Export selection to IVE...") { self.exportToOSG(true, ".ive") }
-	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
-		
-	    selItem = osg_menu.add_item("Export selection to OSG binary...") { self.exportToOSG(true, ".osgb") }
-	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
-
-	    selItem = osg_menu.add_item("Export selection to OSG XML...") { self.exportToOSG(true, ".osgx") }
-	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
-
-	    selItem = osg_menu.add_item("Export selection to OSG text...") { self.exportToOSG(true, ".osgt") }
-	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
-
-	    osg_menu.add_separator
-
-	    osg_menu.add_item("Visit SketchupToOSG homepage") { UI.openURL(@osg_exportviacollada_extension_url) }
-
-        file_loaded __FILE__
     end
 
 end #module
