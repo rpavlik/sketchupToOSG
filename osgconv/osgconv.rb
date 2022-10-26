@@ -28,6 +28,7 @@ module RP_SketchUpToOSG
 		    "Convert to output units:",
             "Use STATIC transform?",
             "Optimize material usage?",
+			"Merge Geometries?",
             "Use white as default ambient material?",
             "Keep temporary files?",
             ]
@@ -42,6 +43,7 @@ module RP_SketchUpToOSG
             "meter",    # units
             "yes",      # static transform
             "yes",      # optimize material usage
+			"no",       # Merge Geometries
             "yes",      # Use white as default ambient material
             "no",       # temp files
         ]
@@ -56,6 +58,7 @@ module RP_SketchUpToOSG
             "inch|feet|meter",     # units
             "yes|no",              # static transform
             "yes|no",              # optimize material usage
+			"yes|no",              # Merge Geometries
             "yes|no",              # Use white as default ambient material
             "yes|no",              # temp files
         ]
@@ -103,6 +106,8 @@ module RP_SketchUpToOSG
         useStaticTransform = (input[input_index] == "yes")
         input_index+=1
         optimizeMaterialUsage = (input[input_index] == "yes")
+        input_index+=1
+        mergeGeometries = (input[input_index] == "yes")
         input_index+=1
         useDefaultMaterialAmbient = (input[input_index] == "yes")
         input_index+=1
@@ -237,12 +242,15 @@ module RP_SketchUpToOSG
 
 	    # Tell OSG where it can find its plugins
 	    ENV['OSG_LIBRARY_PATH'] = @osglibpath
-		ENV['OSG_OPTIMIZER'] = 'DEFAULT,FLATTEN_STATIC_TRANSFORMS,FLATTEN_STATIC_TRANSFORMS_DUPLICATING_SHARED_SUBGRAPHS,MERGE_GEODES,VERTEX_POSTTRANSFORM,VERTEX_PRETRANSFORM,BUFFER_OBJECT_SETTINGS,TEXTURE_ATLAS_BUILDER'
+		ENV['OSG_OPTIMIZER'] = 'DEFAULT,FLATTEN_STATIC_TRANSFORMS,FLATTEN_STATIC_TRANSFORMS_DUPLICATING_SHARED_SUBGRAPHS,MERGE_GEODES,VERTEX_POSTTRANSFORM,VERTEX_PRETRANSFORM,BUFFER_OBJECT_SETTINGS,TEXTURE_ATLAS_BUILDER,REMOVE_REDUNDANT_NODES'
         if useStaticTransform
             ENV['OSG_OPTIMIZER'] = ENV['OSG_OPTIMIZER'] + ',PATCH_UNSPECIFIED_TRANSFORMS'
         end
         if optimizeMaterialUsage
             ENV['OSG_OPTIMIZER'] = ENV['OSG_OPTIMIZER'] + ',COMBINE_GEOMETRIES_BY_STATESET'
+        end
+        if mergeGeometries
+            ENV['OSG_OPTIMIZER'] = ENV['OSG_OPTIMIZER'] + ',MERGE_GEOMETRY'
         end
 
         logfile.puts "OSG binary dir: " + @osgbindir
@@ -258,7 +266,7 @@ module RP_SketchUpToOSG
 		    # Run the converter
 		    Sketchup.status_text = "Converting .#{exportFormat} temp file to OpenSceneGraph format..."
             logfile.puts "Converting .#{exportFormat} temp file to OpenSceneGraph format..."
-            logfile.puts @osgconvbin + " \"" + fullConvertArgs.join("\" \"") + "\""
+            logfile.puts "\"" + @osgconvbin + "\" \"" + fullConvertArgs.join("\" \"") + "\""
             status = -1
             begin
                 #status = Kernel.system(@osgconvbin, *fullConvertArgs)
@@ -351,42 +359,42 @@ module RP_SketchUpToOSG
 
 	    if not File.exists?(@osgconvbin) or not File.exists?(@osgviewerbin)
 		    UI.messagebox("Failed to find conversion/viewing tools!\nosgconv: #{@osgconvbin}\nosgviewer: #{@osgviewerbin}")
-        else
-
-            @osg_versions = {
-                "latest" => 158,
-                "3.6" => 158,
-                "3.5" => 148,
-                "3.4" => 131
-                }
-
-            osg_menu = UI.menu("File").add_submenu("Export to OpenSceneGraph")
-
-            osg_menu.add_item("Export entire document to IVE...") { self.exportToOSG(false, ".ive") }
-            osg_menu.add_item("Export entire document to OSG binary...") { self.exportToOSG(false, ".osgb") }
-            osg_menu.add_item("Export entire document to OSG XML...") { self.exportToOSG(false, ".osgx") }
-            osg_menu.add_item("Export entire document to OSG text...") { self.exportToOSG(false, ".osgt") }
-
-            osg_menu.add_separator
-
-            selItem = osg_menu.add_item("Export selection to IVE...") { self.exportToOSG(true, ".ive") }
-            osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
-            
-            selItem = osg_menu.add_item("Export selection to OSG binary...") { self.exportToOSG(true, ".osgb") }
-            osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
-
-            selItem = osg_menu.add_item("Export selection to OSG XML...") { self.exportToOSG(true, ".osgx") }
-            osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
-
-            selItem = osg_menu.add_item("Export selection to OSG text...") { self.exportToOSG(true, ".osgt") }
-            osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
-
-            osg_menu.add_separator
-
-            osg_menu.add_item("Visit SketchupToOSG homepage") { UI.openURL(@osg_exportviacollada_extension_url) }
-
-            file_loaded __FILE__
+		    return
 	    end
+
+        @osg_versions = {
+            "latest" => 158,
+            "3.6" => 158,
+            "3.5" => 148,
+            "3.4" => 131
+            }
+
+        osg_menu = UI.menu("File").add_submenu("Export to OpenSceneGraph")
+
+	    osg_menu.add_item("Export entire document to IVE...") { self.exportToOSG(false, ".ive") }
+		osg_menu.add_item("Export entire document to OSG binary...") { self.exportToOSG(false, ".osgb") }
+        osg_menu.add_item("Export entire document to OSG XML...") { self.exportToOSG(false, ".osgx") }
+	    osg_menu.add_item("Export entire document to OSG text...") { self.exportToOSG(false, ".osgt") }
+
+	    osg_menu.add_separator
+
+	    selItem = osg_menu.add_item("Export selection to IVE...") { self.exportToOSG(true, ".ive") }
+	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
+		
+	    selItem = osg_menu.add_item("Export selection to OSG binary...") { self.exportToOSG(true, ".osgb") }
+	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
+
+	    selItem = osg_menu.add_item("Export selection to OSG XML...") { self.exportToOSG(true, ".osgx") }
+	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
+
+	    selItem = osg_menu.add_item("Export selection to OSG text...") { self.exportToOSG(true, ".osgt") }
+	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
+
+	    osg_menu.add_separator
+
+	    osg_menu.add_item("Visit SketchupToOSG homepage") { UI.openURL(@osg_exportviacollada_extension_url) }
+
+        file_loaded __FILE__
     end
 
 end #module
