@@ -8,10 +8,16 @@ SketchUp to OSG Plugin
 
 Original Author:
 
-> Ryan Pavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
-> <http://academic.cleardefinition.com>
->
-> Iowa State University HCI Graduate Program/VRAC
+> Rylie Pavlik <rylie@ryliepavlik.com>
+
+Project Status
+--------------
+
+This was worthwhile and worked when I last used it.
+However, I have moved on, no longer use this or know if it is valuable,
+and have no capacity to meaningfully maintain it.
+
+**Unmaintained**
 
 Introduction
 ------------
