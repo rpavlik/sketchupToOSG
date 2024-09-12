@@ -1,7 +1,9 @@
 #!/bin/sh
 
+set -x
+
 # Package version.
-VER=1.6.3
+VER=1.6.7
 
 # SketchUp version: 2013 means 2013 and earlier (don't go much earlier
 # than 8.0 M1 for best results), while 2014 means 2014, and
@@ -21,6 +23,8 @@ finish() {
 }
 trap finish EXIT
 
+#SCRATCH="${SRC}/Temp"
+#mkdir -p "$SCRATCH"
 DESTDIR="${SRC}/Output"
 mkdir -p "$DESTDIR"
 
@@ -42,28 +46,28 @@ echo
 
     ###
     echo "Copy platform-independent files..."
-    cp "openscenegraph_exportviacollada.rb" "${SCRATCH}"
+    cp -v "openscenegraph_exportviacollada.rb" "${SCRATCH}"
 
     mkdir -p "${SCRATCH}/osgconv"
-    cp "osgconv/osgconv.rb" "osgconv/LICENSE_1_0.txt" "${SCRATCH}/osgconv/"
-    cp README.mkd "${SCRATCH}/README_openscenegraph_exportviacollada.txt"
+    cp -v "osgconv/osgconv.rb" "osgconv/LICENSE_1_0.txt" "${SCRATCH}/osgconv/"
+    cp -v README.mkd "${SCRATCH}/README_openscenegraph_exportviacollada.txt"
     
     if [ $SUVER -lt 2014 ]; then
-        cp "osgconv/fileutils.rb" "${SCRATCH}/osgconv/"
+        cp -v "osgconv/fileutils.rb" "${SCRATCH}/osgconv/"
     fi
 
     ###
     echo "Copy platform-dependent files..."
     # the -d is to keep symlinks intact for Mac.
-    cp --recursive -d  binaries/${PLATFORM}/* "${SCRATCH}/osgconv"
+    cp -v --recursive -d  binaries/${PLATFORM}/* "${SCRATCH}/osgconv"
     
     echo "Build archive..."
-    # Compress to ZIP
-    rm -f "${DESTBASE}.zip"
-    7za a -r "${DESTBASE}.zip" "${SCRATCH}/*"
+    # Compress to ZIP/RBZ
+    rm -fv "${DESTBASE}.rbz"
+    7za a -tzip -r "${DESTBASE}.rbz" "${SCRATCH}"/*
     
     # Rename to RBZ
-    mv "${DESTBASE}.zip" "${DESTBASE}.rbz"
+    #mv "${DESTBASE}.zip" "${DESTBASE}.rbz"
     echo " - Generated ${DESTBASE}.rbz"
 )
 

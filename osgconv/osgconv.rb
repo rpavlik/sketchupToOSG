@@ -13,22 +13,65 @@ end
 
 module RP_SketchUpToOSG
     # TODO de-duplication
-    @osg_exportviacollada_extension_url = "https://github.com/rpavlik/sketchupToOSG#readme"
+    @osg_exportviacollada_extension_url = "https://github.com/aroth-fastprotect/sketchupToOSG#readme"
 
     def self.exportToOSG(selectionOnly, extension)
 	    # Present an options dialog
-	    prompts = ["Open in viewer after export?",
+	    prompts = [
+            "Open in viewer after export?",
+            "Export format:",
 		    "Export edges?",
 		    "Double-sided faces?",
+            "Tessellation:",
+            "Preserve Instancing?",
 		    "Rotate to Y-UP?",
-		    "Convert to output units:"]
-	    defaults = ["yes", "yes", "yes", "yes", "meters"]
-	    list = ["yes|no", "yes|no", "yes|no", "yes|no", "inches (no scaling)|feet|meters"]
-	    if extension == ".ive"
-		    prompts << "Compress textures?"
-		    defaults << "yes"
-		    list << "yes|no"
-	    end
+		    "Convert to output units:",
+            "Use STATIC transform?",
+            "Optimize material usage?",
+			"Merge Geometries?",
+            "Use white as default ambient material?",
+            "Keep temporary files?",
+            ]
+	    defaults = [
+            "no",       # viewer
+            "DAE",      # format
+            "no",       # edges
+            "no",       # double-sided
+            "Sketchup", # Tessellation
+            "no",       # preserve instancing
+            "no",       # rotate
+            "meter",    # units
+            "yes",      # static transform
+            "yes",      # optimize material usage
+			"no",       # Merge Geometries
+            "yes",      # Use white as default ambient material
+            "no",       # temp files
+        ]
+	    list = [
+            "yes|no",              # viewer
+            "DAE",                 # format
+            "yes|no",              # edges
+            "yes|no",              # double-sided
+            "Sketchup|None|Polygons|Polygons as Triangle Fan",        # Tessellation
+            "yes|no",              # preserve instancing
+            "yes|no",              # rotate
+            "inch|feet|meter",     # units
+            "yes|no",              # static transform
+            "yes|no",              # optimize material usage
+			"yes|no",              # Merge Geometries
+            "yes|no",              # Use white as default ambient material
+            "yes|no",              # temp files
+        ]
+        if extension == ".ive" or extension == ".osgb"
+            prompts << "Compress textures?"
+            defaults << "yes"
+            list << "yes|no"
+        end
+        if extension == ".osgb" or extension == ".osgx" or extension == ".osgt"
+            prompts << "Target OSG version:"
+            defaults << "latest"
+            list << @osg_versions.keys.join('|')
+        end
 	    input = UI.inputbox prompts, defaults, list, "OpenSceneGraph Export Options"
 
 	    if input == nil
@@ -37,15 +80,49 @@ module RP_SketchUpToOSG
 	    end
 
 	    # Interpret results of options dialog
-	    view = (input[0] == "yes")
-	    edges = (input[1] == "yes")
-	    doublesided = (input[2] == "yes")
-	    doRotate = (input[3] == "yes")
-	    doScale = (input[4] != "inches (no scaling)")
+        input_index = 0
+	    view = (input[input_index] == "yes")
+        input_index+=1
+        exportFormat = input[input_index].downcase
+        input_index+=1
+        exportFormatDAE = (exportFormat == "dae")
+        exportFormatOBJ = (exportFormat == "obj")
+	    edges = (input[input_index] == "yes")
+        input_index+=1
+	    doublesided = (input[input_index] == "yes")
+        input_index+=1
+        tessellation = input[input_index]
+        input_index+=1
+        doTriangulate = (tessellation == "Sketchup")
+        doPreserveInstancing = (input[input_index] == "yes")
+        input_index+=1
+	    doRotate = (input[input_index] == "yes")
+        input_index+=1
+        scale_units = input[input_index]
+        input_index+=1
+	    doScale = (scale_units != "inch")
 	    doCompress = false
-	    if extension == ".ive"
-		    doCompress = (input[6] == "yes")
+        targetOSGVersion = ""
+        useStaticTransform = (input[input_index] == "yes")
+        input_index+=1
+        optimizeMaterialUsage = (input[input_index] == "yes")
+        input_index+=1
+        mergeGeometries = (input[input_index] == "yes")
+        input_index+=1
+        useDefaultMaterialAmbient = (input[input_index] == "yes")
+        input_index+=1
+        keepTemporaryFiles = (input[input_index] == "yes")
+        input_index+=1
+	    if extension == ".ive" or extension == ".osgb"
+		    doCompress = (input[input_index] == "yes")
+            input_index+=1
 	    end
+        if extension == ".osgb" or extension == ".osgx" or extension == ".osgt"
+            targetOSGVersion = input[input_index]
+            input_index+=1
+        end
+
+        targetOSGVersion_so = @osg_versions.fetch(targetOSGVersion, 0)
 
 	    # Get model information
 	    model = Sketchup.active_model
@@ -65,34 +142,82 @@ module RP_SketchUpToOSG
 	    # Flag: don't delete the export texture dir if it already exists before export
 	    skipDeleteDir = File.directory?(outputFn + "-export")
 
+        Sketchup.status_text = "Exporting to a temporary ." + exportFormat + " file..."
+        tempFn = outputFn + "-export." + exportFormat
+        logfile = File.open(outputFn + ".log", "w")
+
+        options_hash = {}
 	    # Export to DAE
-	    Sketchup.status_text = "Exporting to a temporary DAE file..."
-	    tempFn = outputFn + "-export.dae"
-	    options_hash = {:triangulated_faces   => true,
-					    :doublesided_faces    => doublesided,
-					    :edges                => edges,
-					    :materials_by_layer   => false,
-					    :author_attribution   => true,
-					    :texture_maps         => true,
-					    :selectionset_only    => selectionOnly,
-					    :preserve_instancing  => true }
-	    status = model.export tempFn, options_hash
-	    if (not status)
-		    UI.messagebox("Could not export to DAE")
-		    return
-	    end
+        if exportFormatDAE
+            options_hash = {:triangulated_faces   => doTriangulate,
+                            :doublesided_faces    => doublesided,
+                            :edges                => edges,
+                            :materials_by_layer   => false,
+                            :author_attribution   => true,
+                            :texture_maps         => true,
+                            :selectionset_only    => selectionOnly,
+                            :preserve_instancing  => doPreserveInstancing,
+                            :camera_lookat        => false}
+        elsif exportFormatOBJ
+            options_hash = {:triangulated_faces   => doTriangulate,
+                            :units                => scale_units,
+                            :doublesided_faces    => doublesided,
+                            :edges                => edges,
+                            :texture_maps         => true,
+                            :selectionset_only    => selectionOnly
+                           }
+        else
+            status = 0
+        end
+        logfile.puts "Export model options: " + options_hash.to_s
+        status = model.export tempFn, options_hash
+        if (not status)
+            UI.messagebox("Could not export to " + exportFormat)
+            logfile.close
+            return
+        end
 
 	    # Set up command line arguments
-	    convertArgs = [tempFn,
-		    outputFn,
-		    "--use-world-frame",
-		    "-O", "OutputRelativeTextures"]
+        pluginOpts = ["OutputRelativeTextures"]
+	    convertArgs = []
+        if exportFormatDAE
+			pluginOpts << "daeUseSequencedTextureUnits"
+            if not doTriangulate
+                if tessellation == "None"
+                    pluginOpts << "daeTessellateNone"
+                elsif tessellation == "Polygons"
+                    pluginOpts << "daeTessellatePolygons"
+                else # if tessellation == "Polygons as Triangle Fan"
+                    pluginOpts << "daeTessellatePolygonsAsTriFans"
+                end
+            end
+            if useDefaultMaterialAmbient
+                pluginOpts << "daeDefaultMaterialAmbientWhite"
+            end
+        elsif exportFormatOBJ
+            if not doTriangulate
+                if tessellation == "None"
+                    pluginOpts << "noTriStripPolygons"
+                else
+                    pluginOpts << "noTesselateLargePolygons"
+                end
+            end
+        end
+
+        if extension == ".ive" or extension == ".osgb"
+			pluginOpts << "WriteImageHint=IncludeData"
+        end
+        if targetOSGVersion_so != 0
+            # pass OSG SO version number to make sure the file is readable by an earlier version
+			pluginOpts << "TargetFileVersion=#{targetOSGVersion_so}"
+		end
 	    viewPseudoLoader = ""
 
 	    if doScale
-		    if input[4] == "meters"
+            scale = "1.0"
+		    if scale_units == "meter"
 			    scale = "0.02539999969303608" # inches to meters
-		    elsif input[4] == "feet"
+		    elsif scale_units == "feet"
 			    scale = "0.083333" # inches to feet
 		    end
 		    convertArgs << "-s"
@@ -108,37 +233,86 @@ module RP_SketchUpToOSG
 	    if doCompress
 		    convertArgs << "--compressed"
 	    end
+        if extension == ".osgb"
+            pluginOpts << "Compressor=zlib"
+        end
+
+        fullConvertArgs = [tempFn,outputFn,"--use-world-frame", "-O", pluginOpts.join(" ") ] + convertArgs
+
 
 	    # Tell OSG where it can find its plugins
 	    ENV['OSG_LIBRARY_PATH'] = @osglibpath
-	    	
+		ENV['OSG_OPTIMIZER'] = 'DEFAULT,FLATTEN_STATIC_TRANSFORMS,FLATTEN_STATIC_TRANSFORMS_DUPLICATING_SHARED_SUBGRAPHS,MERGE_GEODES,VERTEX_POSTTRANSFORM,VERTEX_PRETRANSFORM,BUFFER_OBJECT_SETTINGS,TEXTURE_ATLAS_BUILDER,REMOVE_REDUNDANT_NODES'
+        if useStaticTransform
+            ENV['OSG_OPTIMIZER'] = ENV['OSG_OPTIMIZER'] + ',PATCH_UNSPECIFIED_TRANSFORMS'
+        end
+        if optimizeMaterialUsage
+            ENV['OSG_OPTIMIZER'] = ENV['OSG_OPTIMIZER'] + ',COMBINE_GEOMETRIES_BY_STATESET'
+        end
+        if mergeGeometries
+            ENV['OSG_OPTIMIZER'] = ENV['OSG_OPTIMIZER'] + ',MERGE_GEOMETRY'
+        end
 
+        logfile.puts "OSG binary dir: " + @osgbindir
+        logfile.puts "osgconv: " + @osgconvbin
+        logfile.puts "osgviewer: " + @osgviewerbin
+        logfile.puts "Environment: "
+        logfile.puts "OSG_LIBRARY_PATH=" + ENV['OSG_LIBRARY_PATH'].to_s
+        logfile.puts "OSG_OPTIMIZER=" + ENV['OSG_OPTIMIZER'].to_s
+        
 	    # Change to output directory
 	    outdir = File.dirname(outputFn)
 	    Dir.chdir outdir do
 		    # Run the converter
-		    Sketchup.status_text = "Converting .dae temp file to OpenSceneGraph format..."
-		    status = Kernel.system(@osgconvbin, *convertArgs)
+		    Sketchup.status_text = "Converting .#{exportFormat} temp file to OpenSceneGraph format..."
+            logfile.puts "Converting .#{exportFormat} temp file to OpenSceneGraph format..."
+            logfile.puts "\"" + @osgconvbin + "\" \"" + fullConvertArgs.join("\" \"") + "\""
+            status = -1
+            begin
+                #status = Kernel.system(@osgconvbin, *fullConvertArgs)
+                require 'open3'
+                Open3.popen3(@osgconvbin, *fullConvertArgs) do |osgconv_stdin, osgconv_stdout, osgconv_stderr, wait_thr|
+                    status = wait_thr.value
+                    logfile.puts @osgconvbin + " status " + status.to_s
+                    logfile.puts osgconv_stdout.read
+                    logfile.puts osgconv_stderr.read
+                end
+            rescue StandardError => msg
+                logfile.puts msg
+            end
 
-		    if not status
+            if status != 0
+                logfile.puts "Failed when converting #{tempFn} to #{outputFn}! Temporary file not deleted, for your inspection."
 			    UI.messagebox("Failed when converting #{tempFn} to #{outputFn}! Temporary file not deleted, for your inspection.")
+                logfile.close
 			    return
 		    end
 	    end
 
-	    # Delete temporary file(s)
-	    File.delete(tempFn)
-	    if not skipDeleteDir
-		    FileUtils.rm_rf outputFn + "-export"
-	    end
+        if keepTemporaryFiles
+            logfile.puts "Keep temporary file #{tempFn}"
+        else
+            # Delete temporary file(s)
+            logfile.puts "Delete temporary file #{tempFn}"
+            File.delete(tempFn)
+            if not skipDeleteDir
+                FileUtils.rm_rf outputFn + "-export"
+            end
+        end
 
 	    # View file if requested
 	    extraMessage = ""
 	    if view
 		    Sketchup.status_text = "Launching viewer of exported model..."
-		    Thread.new{ system(@osgviewerbin, "--window", "50", "50", "640", "480", outputFn + viewPseudoLoader) }
+            logfile.puts "Launching viewer of exported model..."
+            viewerArgs = ["--window", "50", "50", "640", "480"]
+            viewerArgs << outputFn + viewPseudoLoader
+            logfile.puts "Start viewer " + @osgviewerbin + " \"" + viewerArgs.join("\" \"") + "\""
+		    Thread.new{ system(@osgviewerbin, *viewerArgs) }
 		    extraMessage = "Viewer launched - press Esc to close it."
 	    end
+        logfile.puts "Export of #{outputFn} successful!"
+        logfile.close
 
 	    Sketchup.status_text = "Export of #{outputFn} successful!  #{extraMessage}"
     end
@@ -155,9 +329,31 @@ module RP_SketchUpToOSG
 
 	    # Find helper applications and directories
 	    @plugindir = File.dirname( __FILE__ )
-	    @osgbindir = (Object::RUBY_PLATFORM=~/mswin/)? @plugindir : @plugindir + '/vendor/bin'
-	    @osglibpath = (Object::RUBY_PLATFORM=~/mswin/)?  @plugindir : @plugindir + '/vendor/lib/osgPlugins-3.0.1'
-	    @binext = (Object::RUBY_PLATFORM=~/mswin/)? ".exe" : ""
+	    @osgbindir = (Object::RUBY_PLATFORM=~/mswin|x64-mingw32/)? @plugindir : @plugindir + '/vendor/bin'
+	    @osglibpath = (Object::RUBY_PLATFORM=~/mswin|x64-mingw32/)?  @plugindir : @plugindir + '/vendor/lib/osgPlugins-3.5.6'
+	    @binext = (Object::RUBY_PLATFORM=~/mswin|x64-mingw32/)? ".exe" : ""
+        @osg_debug_version = false
+        @osg_ini = @plugindir + '/osg.ini'
+        if File.file?(@osg_ini)
+            File.open(@osg_ini, "r") do |f|
+                f.each_line do |line|
+                    if line.start_with?('OSG=')
+                        @osgbindir = line[4..-1].rstrip
+                        if (Object::RUBY_PLATFORM=~/mswin|x64-mingw32/)
+                            @osglibpath = @osgbindir
+                        else
+                            @osglibpath = @osgbindir + '/../lib'
+                        end
+                    elsif line.start_with?('debug=')
+                        @osg_debug_version = line[6..-1].rstrip.to_i != 0
+                    end
+                end
+            end
+        end
+        if @osg_debug_version
+            @binext = "d" + @binext
+        end
+        @osgversionbin = @osgbindir + "/osgversion" + @binext
 	    @osgconvbin = @osgbindir + "/osgconv" + @binext
 	    @osgviewerbin = @osgbindir + "/osgviewer" + @binext
 
@@ -166,18 +362,32 @@ module RP_SketchUpToOSG
 		    return
 	    end
 
+        @osg_versions = {
+            "latest" => 158,
+            "3.6" => 158,
+            "3.5" => 148,
+            "3.4" => 131
+            }
+
         osg_menu = UI.menu("File").add_submenu("Export to OpenSceneGraph")
 
-	    osg_menu.add_item("Export entire document to OSG...") { self.exportToOSG(false, ".osg") }
-
 	    osg_menu.add_item("Export entire document to IVE...") { self.exportToOSG(false, ".ive") }
+		osg_menu.add_item("Export entire document to OSG binary...") { self.exportToOSG(false, ".osgb") }
+        osg_menu.add_item("Export entire document to OSG XML...") { self.exportToOSG(false, ".osgx") }
+	    osg_menu.add_item("Export entire document to OSG text...") { self.exportToOSG(false, ".osgt") }
 
 	    osg_menu.add_separator
 
-	    selItem = osg_menu.add_item("Export selection to OSG...") { self.exportToOSG(true, ".osg") }
+	    selItem = osg_menu.add_item("Export selection to IVE...") { self.exportToOSG(true, ".ive") }
+	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
+		
+	    selItem = osg_menu.add_item("Export selection to OSG binary...") { self.exportToOSG(true, ".osgb") }
 	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
 
-	    selItem = osg_menu.add_item("Export selection to IVE...") { self.exportToOSG(true, ".ive") }
+	    selItem = osg_menu.add_item("Export selection to OSG XML...") { self.exportToOSG(true, ".osgx") }
+	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
+
+	    selItem = osg_menu.add_item("Export selection to OSG text...") { self.exportToOSG(true, ".osgt") }
 	    osg_menu.set_validation_proc(selItem) {self.selectionValidation()}
 
 	    osg_menu.add_separator
